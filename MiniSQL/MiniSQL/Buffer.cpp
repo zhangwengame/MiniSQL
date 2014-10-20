@@ -17,12 +17,11 @@ fileInfo* existFile(CString DB_Name, CString fileName, bufferInfo* bufferInfo){
 	return NULL;
 }
 void writeBlock(CString DB_Name, blockInfo *block){
-	std::ofstream fout;
 	CString path = DB_Name + "//" + block->file->fileName + ".dat";
-	fout.open(path);
-	fout.seekp(BLOCK_LEN*(block->blockNum), std::ios::beg);
-	fout << block->cBlock;
-	fout.close();
+	FILE *fout = fopen(path, "r+");
+	fseek(fout,BLOCK_LEN*(block->blockNum), 0);
+	fprintf(fout, "%s",block->cBlock );
+	fclose(fout);
 }
 void closeFile(fileInfo* F,CString DB_Name, CString m_fileName, int m_fileType,bufferInfo* bufferInfo){
 	fileInfo *file,*ite;
@@ -84,9 +83,9 @@ blockInfo*	findBlock(bufferInfo* bufferInfo)
 		if (bufferInfo->blockCount >= MAX_BLOCK)
 		{
 			fileInfo *fite, *minFile=bufferInfo->fileHandle;
-			time_t minTime = bufferInfo->fileHandle->lastBlock->iTime;
+			time_t minTime = 1<<31;
 			for (fite = bufferInfo->fileHandle; fite != NULL; fite = fite->next){
-				if (fite->lastBlock->iTime < minTime)
+				if (fite->lastBlock != NULL &&fite->lastBlock->iTime < minTime)
 				{
 					minFile = fite;
 					minTime = fite->lastBlock->iTime;
