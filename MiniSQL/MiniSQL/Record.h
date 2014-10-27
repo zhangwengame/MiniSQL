@@ -64,7 +64,9 @@ struct condition_info{
     int type,symbol;
     attr_info *left;
     int right;
-}
+};
+
+char *lsplit=" ",*esplit=",";
 
 void Close_Database(CString DB_Name,bool closetype);
 void Close_File(CString DB_Name,CString filename,int filetype,bool closetype);
