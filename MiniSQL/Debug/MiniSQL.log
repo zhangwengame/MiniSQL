@@ -1,0 +1,18 @@
+﻿生成启动时间为 2014/10/26 18:28:55。
+     1>项目“G:\Prom\DataBase\MiniSQL\MiniSQL\MiniSQL.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         F:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _CRT_SECURE_NO_WARNINGS /D _MBCS /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Catalog.cpp
+         Catalog.cpp
+     1>f:\program files (x86)\microsoft visual studio 12.0\vc\atlmfc\include\afx.h(38): warning C4996: 'MBCS_Support_Deprecated_In_MFC': MBCS support in MFC is deprecated and may be removed in a future version of MFC.
+                 f:\program files (x86)\microsoft visual studio 12.0\vc\atlmfc\include\afx.h(33) : 参见“MBCS_Support_Deprecated_In_MFC”的声明
+         _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
+       Link:
+         F:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"G:\Prom\DataBase\MiniSQL\Debug\MiniSQL.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"F:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"G:\Prom\DataBase\MiniSQL\Debug\MiniSQL.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"G:\Prom\DataBase\MiniSQL\Debug\MiniSQL.lib" /MACHINE:X86 Debug\Buffer.obj
+         Debug\Catalog.obj
+         Debug\Test.obj
+         MiniSQL.vcxproj -> G:\Prom\DataBase\MiniSQL\Debug\MiniSQL.exe
+     1>已完成生成项目“G:\Prom\DataBase\MiniSQL\MiniSQL\MiniSQL.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:01.75
