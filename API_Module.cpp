@@ -1,26 +1,32 @@
-#include"API_Module.h"
-#include"Catalog_Manager.h"
-#include"Record_Manager.h"
-#include"Index_Manager.h"
+#include <string>
+#include "API_Module.h"
+#include <iostream>
+//#include "Record.h"
+//#include "Catalog.h"
+//#include"Index.h"
+using namespace std;
 
-CString DB_Name;
+string DB_Name="AB";
+conditionInfo Str_To_Conds(string str);
 
-void API_Module(CString SQL)
+void API_Module(string SQL)
 {
-	CString Type,Attr,Index_Name,Table_Name,Attr_Name,Condition,index_name[32];
-	int index1,index2,end,length,offset,type,count,num,record_Num,Count;
-	index_info nodes[32];
-	condition_info conds[10];
-	attr_info print[32];
+	string Type,Attr,Index_Name,Table_Name,Attr_Name,Condition,index_name[32],Cond_Info;
+	int index1,index2,end,length,offset,type,count,num,record_Num,Count,i;
+	//index_info nodes[32];
+	conditionInfo conds[10];
+	//attr_info print[32];
 	char cond,AO;
 	bool ok;
-	char conds_str[10][20];
-	Type=SQL.Left(2);
-	SQL=SQL.Mid(2,SQL.GetLength()-2);
+	string conds_str[10];
+	Type.assign(SQL,0,2);
+	cout<<Type<<endl;
+	SQL.assign(SQL,2,SQL.length()-2);
+	cout<<SQL<<endl;
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//创建数据库
-	if(Type=="00")
+	/*if(Type=="00")
 		Create_Database(SQL);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -146,37 +152,44 @@ void API_Module(CString SQL)
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//选择语句(有where子句)
-	else if(Type=="21")
+	else if(Type=="21")*/
+	if (1)
 	{
-		if(DB_Name.IsEmpty())
+		if(0==DB_Name.length())
 			cout<<"error: you have not specified the database to be used!"<<endl;
 		else
 		{
-			index1=SQL.Find(',');
-			Attr=SQL.Left(index1);
+			index1=SQL.find(',');
+			Attr=SQL.substr(0,index1);
+				cout<<Attr<<endl;
 			index1++;
-			SQL=SQL.Right(SQL.GetLength()-index);
-			index2=SQL.Find(',');
-			Table_Name=SQL.Left(index2);
+			SQL=SQL.substr(index1,SQL.length()-index1);
+			index2=SQL.find(',',0);
+			Table_Name=SQL.substr(0,index2);
 			index2++;
-			Cond_Info=SQL.Right(SQL.GetLength()-index2);
+			Cond_Info=SQL.substr(index2,SQL.length()-index2);
+				cout<<Table_Name<<endl;
 			
 			num=0;
-			while ((Cond_Info.Find('and')!=-1)||(Cond_Info.Find('or')!=-1))
-                  if (Cond_Info.Find('and')!=-1){
+			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1))
+                  if (Cond_Info.find('&')>0){
                       AO='a';
-                      conds_str[num++]=Cond_Info.Left(Cond_Info.Find('and'));
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('&'));
+					  Cond_Info=Cond_Info.substr(Cond_Info.find('&')+1,Cond_Info.length()-Cond_Info.find('&')-1);
                   }
-                  else {
+                  else if (Cond_Info.find('|')>0){
                       AO='o';
-                      conds_str[num++]=Cond_Info.Left(Cond_Info.Find('or'));
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('|'));
                   } 
-            for (i=0;i<num-1;i++){
-                /*----------------------*/
-            } 
+			conds_str[num++]=Cond_Info;
+
+            for (i=0;i<num;i++){
+                conds[i]=Str_To_Conds(conds_str[i]);
+				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
+			}
             
 			//Table_Name=Table_Name.Left(Table_Name.GetLength()-1);
-			if(Table_Name.Find(' ')!=-1)
+			/*if(Table_Name.find(' ')!=-1)
 				cout<<"error: can not select from more than one table!"<<endl;
 			else
 			{
@@ -187,9 +200,38 @@ void API_Module(CString SQL)
 				if(count!=0)
 					Select_No_Where(DB_Name,Table_Name,print,count);
 					Select_With_Where(DB_Name,Table_Name,conds,num-1,AO,print,count)
-			}
+			}*/
 		}		
 	}
+	
+}
 
+conditionInfo Str_To_Conds(string str){
+    conditionInfo conds;
+    int index=-1;
+    index=str.find('<');
+    if (index>0){
+        (conds.left).assign(str.substr(0,index));
+        conds.symbol=-1;
+        conds.right=(int)str[index+1]-48;
+    }
+    index=str.find('=');
+    if (index>0){
+        (conds.left).assign(str.substr(0,index));
+        conds.symbol=0;
+        conds.right=(int)str[index+1]-48;
+    }
+    index=str.find('>');
+    if (index>0){
+        (conds.left).assign(str.substr(0,index));
+        conds.symbol=1;
+        conds.right=(int)str[index+1]-48;
+    }
+    return conds;
+}
 
-	后面程序删除了。
+int main(){
+	API_Module("09ele1,table,a<0&b>0");
+    while (1);
+} 
+
