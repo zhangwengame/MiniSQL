@@ -9,25 +9,25 @@ blockInfo* existBlock(fileInfo* file, int blockNum){
 		return ret;
 	}
 }
-fileInfo* existFile(CString DB_Name, CString fileName, int fileType, bufferInfo* bufferInfo){
+fileInfo* existFile(string DB_Name, string fileName, int fileType, bufferInfo* bufferInfo){
 	fileInfo *ite = bufferInfo->fileHandle;
 	for (; ite != NULL; ite = ite->next)
 		if (ite->fileName == fileName && ite->dataBase==DB_Name && ite->type==fileType)
 			return ite;
 	return NULL;
 }
-void writeBlock(CString DB_Name, blockInfo *block){
-	CString path = DB_Name + "//" + block->file->fileName;
+void writeBlock(string DB_Name, blockInfo *block){
+	string path = DB_Name + "//" + block->file->fileName;
 	if (block->file->type == 0)
 		path = path + ".0.dat";
 	else
 		path = path + ".1.dat";
-	FILE *fout = fopen(path, "r+");
+	FILE *fout = fopen(path.c_str(), "r+");
 	fseek(fout,BLOCK_LEN*(block->blockNum), 0);
 	fprintf(fout, "%s",block->cBlock );
 	fclose(fout);
 }
-void closeFile(fileInfo* F,CString DB_Name, CString m_fileName, int m_fileType,bufferInfo* bufferInfo){
+void closeFile(fileInfo* F,string DB_Name, string m_fileName, int m_fileType,bufferInfo* bufferInfo){
 	fileInfo *file,*ite;
 	if (F == NULL)
 	{
@@ -54,7 +54,7 @@ void closeFile(fileInfo* F,CString DB_Name, CString m_fileName, int m_fileType,b
 	delete file;
 	bufferInfo->fileCount--;
 }
-fileInfo* getfile(CString DB_Name, CString fileName, int m_fileType, bufferInfo* bufferInfo){
+fileInfo* getfile(string DB_Name, string fileName, int m_fileType, bufferInfo* bufferInfo){
 	fileInfo *ret;
 	ret = existFile(DB_Name,fileName,m_fileType,bufferInfo);
 	if (ret != NULL) return ret;
@@ -63,7 +63,7 @@ fileInfo* getfile(CString DB_Name, CString fileName, int m_fileType, bufferInfo*
 		closeFile(bufferInfo->fileHandle,"","",0,bufferInfo);
 	ret = new fileInfo(DB_Name,fileName,m_fileType);
 	std::ifstream fin;
-	CString path;
+	string path;
 	path = DB_Name + "//" + fileName;
 	if (m_fileType == 0)
 		path = path + ".0.dat";
@@ -138,7 +138,7 @@ blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
 	file->firstBlock = block;
 	file->blockSet.insert(blockNum);
 	std::ifstream fin;
-	CString path = file->dataBase + "//" + file->fileName + ".dat";
+	string path = file->dataBase + "//" + file->fileName + ".dat";
 	fin.open(path);
 	fin.seekg(BLOCK_LEN*blockNum, std::ios::beg);
 	fin.get(block->cBlock, BLOCK_LEN, '~');
@@ -146,7 +146,7 @@ blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
 
 	return block;
 }
-blockInfo* readBlock(CString DB_Name, CString m_fileName, int m_blockNum, int m_fileType, bufferInfo* bufferInfo)
+blockInfo* readBlock(string DB_Name, string m_fileName, int m_blockNum, int m_fileType, bufferInfo* bufferInfo)
 {
 	fileInfo *file;
 	file = existFile(DB_Name, m_fileName, m_fileType,bufferInfo);
@@ -158,14 +158,14 @@ blockInfo* readBlock(CString DB_Name, CString m_fileName, int m_blockNum, int m_
 		block = getblock(file, m_blockNum, bufferInfo);
 	return block;
 }
-void closeDatabase(CString DB_Name, bufferInfo* bufferInfo){
+void closeDatabase(string DB_Name, bufferInfo* bufferInfo){
 	fileInfo *fite,*tmp=NULL;
 	for (fite = bufferInfo->fileHandle; fite != NULL;fite=tmp){
 		tmp = fite->next;
 		closeFile(fite,"","",0, bufferInfo);
 	}
 }
-void quitProg(CString DB_Name, bufferInfo* bufferInfo){
+void quitProg(string DB_Name, bufferInfo* bufferInfo){
 	closeDatabase(DB_Name, bufferInfo);
 	blockInfo* bite,*tmp=NULL;
 	for (bite = bufferInfo->blockHandle; bite != NULL;bite=tmp)
