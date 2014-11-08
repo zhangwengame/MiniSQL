@@ -18,7 +18,7 @@ public:
 	blockInfo *blockHandle;
 	int fileCount;
 	int blockCount;
-	bufferInfo() :fileHandle(NULL), blockHandle(NULL),fileCount(0){};
+	bufferInfo() :fileHandle(NULL), blockHandle(NULL),fileCount(0),blockCount(0){};
 };
 struct blockInfo  {
 	int blockNum;	// the block number of the block,
