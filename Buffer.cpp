@@ -138,7 +138,11 @@ blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
 	file->firstBlock = block;
 	file->blockSet.insert(blockNum);
 	std::ifstream fin;
-	string path = file->dataBase + "//" + file->fileName + ".dat";
+	string path = file->dataBase + "//" + file->fileName;
+	if (file->type == 0)
+		path += ".0.dat";
+	else
+		path += ".1.dat";
 	fin.open(path);
 	fin.seekg(BLOCK_LEN*blockNum, std::ios::beg);
 	fin.get(block->cBlock, BLOCK_LEN, '~');

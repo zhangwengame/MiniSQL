@@ -50,5 +50,12 @@
 	/* createTable("D_2", "Balance");
 	 addAttr("D_2", "Balance", "account", 8, 0, 1);
 	 addAttr("D_2", "Balance", "accounsa", 0, 0, 0);*/
+	 bufferInfo *run;
+	 run = new bufferInfo;
+	/* fileInfo *t = getfile("D_1", "Balance", 0, run);
+	 blockInfo *b = getblock(t, 0, run);*/
+	/* blockInfo *b;
+	 b=readBlock("D_1", "Balance", 0, 0, run);
+	 printf("%s\n", b->cBlock);*/
 	  while (1);
  }
