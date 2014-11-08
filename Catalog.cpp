@@ -25,6 +25,28 @@ bool existTable(string DB_Name, string Table_Name){
 	else
 		return true;
 }
+int attrOrder(string DB_Name, string Table_Name, string Attr_Name){
+	string path = "Catalog//" + DB_Name + "//";
+	path = path + Table_Name + ".dat";
+	FILE *fin = fopen(path.c_str(), "r");
+	int attrCount;
+	char name[25];
+	fscanf(fin, "%d", &attrCount);
+	for (int i = 0; i < attrCount; i++)
+	{
+		fseek(fin, 20+40 * i, 0);
+		for (int j = 0; j < 20; j++)
+		{
+			name[j] = fgetc(fin);
+			if (name[j] == 0)
+				break;
+		}
+		if (string(name) == Attr_Name)
+			return i + 1;
+	}
+	fclose(fin);
+	return 0;
+}
 void createDatabase(string DB_Name){
 	int DBcount;
 	char name[25];
@@ -77,6 +99,11 @@ void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, 
 	if (Attr_Len>255 && Data_Type==1)
 	{
 		printf("ERROR:Attribute %s's length is too long !\n", Attr_Name);
+		return;
+	}
+	if (attrOrder(DB_Name, Table_Name, Attr_Name) != 0)
+	{
+		printf("ERROR:Attribute name confilcts!\n");
 		return;
 	}
 	int attrCount;

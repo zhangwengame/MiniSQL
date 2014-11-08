@@ -10,4 +10,5 @@ void createTable(string DB_Name, string Table_Name);
 void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, int Attr_Type, int Data_Type);
 bool existDatabase(string DB_Name);
 bool existTable(string DB_Name, string Table_Name);
+int attrOrder(string DB_Name, string Table_Name, string Attr_Name);
 #endif
