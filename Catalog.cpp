@@ -41,6 +41,7 @@ int attrOrder(string DB_Name, string Table_Name, string Attr_Name){
 			if (name[j] == 0)
 				break;
 		}
+		name[20] = 0;
 		if (string(name) == Attr_Name)
 			return i + 1;
 	}
