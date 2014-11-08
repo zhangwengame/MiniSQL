@@ -45,12 +45,12 @@ bool Confirm(string record,conditionInfo condition){
      
      strcpy(record_c,record.c_str());
      attr=condition.left->num;    
-     elem=strtok(record_c,esplit);
+     elem=strtok(record_c,",");
      i=0;
      while (elem!=NULL){
          detail[i]=elem;
          i++;
-         elem=strtok(NULL,esplit);
+         elem=strtok(NULL,",");
      }
      switch (condition.symbol){
          case -1: if (detail[attr][0]>=condition.right)
@@ -68,6 +68,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
     fileInfo *file;
     int need[10],i,j,bi,li,lnum;
     char *line,*detail[10],*elem,*line_c[100];
+    char *lsplit=" ",*esplit=","; 
     
     for (i=0;i<count;i++)
         need[i]=print[i].num;
@@ -79,6 +80,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
         line=strtok(head->cBlock,lsplit);
         li=0;
         while (line!=NULL){
+              //printf("%s\n",line);
               line_c[li]=line;
               li++;
               line=strtok(NULL,lsplit);
@@ -87,14 +89,14 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
         
         for (li=0;li<lnum;li++){
             elem=strtok(line_c[li],esplit);
-            i=0;
+            i=1;
             while (elem!=NULL){
                 detail[i]=elem;
                 i++;
                 elem=strtok(NULL,esplit);
             }
-            for (j=0;j<=count;j++)
-               printf("%s\t",detail[j]);
+            for (j=0;j<count;j++)
+               printf("%s\t",detail[need[j]]);
         }
     } 
 }
@@ -113,20 +115,20 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
     file=getfile(DB_Name,Table_Name,0,run);
     head=file->firstBlock;
     for (ptr=head;ptr!=file->lastBlock;ptr=ptr->next){
-        line=strtok(ptr->cBlock,lsplit);
+        line=strtok(ptr->cBlock," ");
         while (line!=NULL){
             strcpy(line_c,line);
-            elem=strtok(line_c,esplit);
+            elem=strtok(line_c,",");
             i=0;
             while (elem!=NULL){
                 detail[i]=elem;
                 i++;
-                elem=strtok(NULL,esplit);
+                elem=strtok(NULL,",");
             }
             if (true==Confirm_To_Where(line,conds,count,cond))
             for (j=0;j<Count;j++)
                printf("%s\t",detail[need[j]]);
-            line=strtok(NULL,lsplit);
+            line=strtok(NULL," ");
         } 
     }
 }
@@ -142,7 +144,7 @@ void Insert_Index_All(string DB_Name,string Table_Name,string Index_Name,int len
 bool Verify_Insertable(string DB_Name,string Table_Name,index_info nodes[32],int count,string Attr);
 void Quit(string DB_Name);
 
-int main(){
+/*int main(){
     attr_info print[32];
     attr_info *f;
     f=new attr_info;
@@ -155,4 +157,4 @@ int main(){
     Select_No_Where("D_1","Balance",print,1);
     printf("2333\n");
     while(1);
-}
+}*/

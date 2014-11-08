@@ -10,20 +10,8 @@
 //////////////////////////////////////////////////////////
 
 //#include "MiniSQL.h"
-#include <string>
+#include "Record.h"
 using namespace std;
-
-struct conditionInfo{
-    int type,symbol;
-    string left;
-    int right;
-};
-
-struct attr_info{
-	char name[20],index_name[20];
-	char data_type,attr_type;
-	int  data_len,num;
-};
 
 void  API_Module(string SQL);
 //œ‘ æ∞Ô÷˙–≈œ¢

@@ -1,18 +1,16 @@
-#include <string>
 #include "API_Module.h"
 #include <iostream>
-//#include "Record.h"
-//#include "Catalog.h"
-//#include"Index.h"
 using namespace std;
 
-string DB_Name="AB";
+string DB_Name="D_1",Table_Name="Balance";
 conditionInfo Str_To_Conds(string str);
+attr_info print[32];
 
 void API_Module(string SQL)
 {
-	string Type,Attr,Index_Name,Table_Name,Attr_Name,Condition,index_name[32],Cond_Info;
+	string Type,Attr,Index_Name,Attr_Name,Condition,index_name[32],Cond_Info;
 	int index1,index2,end,length,offset,type,count,num,record_Num,Count,i;
+	int attr_num[10];
 	//index_info nodes[32];
 	conditionInfo conds[10];
 	//attr_info print[32];
@@ -118,42 +116,42 @@ void API_Module(string SQL)
 			Close_File(DB_Name,Index_Name,1,false);
 			Drop_Index(Index_Name,DB_Name);
 		}
-	}
+	}*/
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//选择语句(无where子句)
-	else if(Type=="20")
+	//else if(Type=="20")
+	if (1)
 	{
-		if(DB_Name.IsEmpty())
+		if(DB_Name[1]==0)
 			cout<<"error: you have not specified the database to be used!"<<endl;
 		else
 		{
-			//获取选择属性组
-			index=SQL.Find(',');
-			Attr=SQL.Left(index);
-			index++;
-			//获取表名
-			Table_Name=SQL.Right(SQL.GetLength()-index);
-			Table_Name=Table_Name.Left(Table_Name.GetLength()-1);
-			if(Table_Name.Find(' ')!=-1)
+		    index1=SQL.find(',');
+			Attr=SQL.substr(0,index1);
+			index1++;
+			SQL=SQL.substr(index1,SQL.length()-index1);
+			if(Table_Name.find(' ')!=-1)
 				cout<<"error: can not select from more than one table!"<<endl;
 			else
 			{
 				//获取显示记录格式
 				if(Attr=="*")
-					Get_Attr_Info_All(DB_Name,Table_Name,print,count);
-				else
-					Get_Attr_Info(DB_Name,Table_Name,print,count,Attr);	
+					//Get_Attr_Info_All(DB_Name,Table_Name,print,count);
+					attr_num[0]=0;
+				else {
+					//Get_Attr_Info(DB_Name,Table_Name,print,count,Attr);
+                    print[0].num=attrOrder(DB_Name,Table_Name,Attr);
+                    }	
 				if(count!=0)
-					Select_No_Where(DB_Name,Table_Name,print,count);
+					Select_No_Where(DB_Name,Table_Name,print,1);
 			}
 		}		
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//选择语句(有where子句)
-	else if(Type=="21")*/
-	if (1)
+	/*else if(Type=="21")
 	{
 		if(0==DB_Name.length())
 			cout<<"error: you have not specified the database to be used!"<<endl;
@@ -186,7 +184,7 @@ void API_Module(string SQL)
             for (i=0;i<num;i++){
                 conds[i]=Str_To_Conds(conds_str[i]);
 				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
-			}
+			}*/
             
 			//Table_Name=Table_Name.Left(Table_Name.GetLength()-1);
 			/*if(Table_Name.find(' ')!=-1)
@@ -200,9 +198,9 @@ void API_Module(string SQL)
 				if(count!=0)
 					Select_No_Where(DB_Name,Table_Name,print,count);
 					Select_With_Where(DB_Name,Table_Name,conds,num-1,AO,print,count)
-			}*/
+			}
 		}		
-	}
+	}*/
 	
 }
 
@@ -211,19 +209,19 @@ conditionInfo Str_To_Conds(string str){
     int index=-1;
     index=str.find('<');
     if (index>0){
-        (conds.left).assign(str.substr(0,index));
+        (conds.left->name).assign(str.substr(0,index));
         conds.symbol=-1;
         conds.right=(int)str[index+1]-48;
     }
     index=str.find('=');
     if (index>0){
-        (conds.left).assign(str.substr(0,index));
+        (conds.left->name).assign(str.substr(0,index));
         conds.symbol=0;
         conds.right=(int)str[index+1]-48;
     }
     index=str.find('>');
     if (index>0){
-        (conds.left).assign(str.substr(0,index));
+        (conds.left->name).assign(str.substr(0,index));
         conds.symbol=1;
         conds.right=(int)str[index+1]-48;
     }
@@ -231,7 +229,9 @@ conditionInfo Str_To_Conds(string str){
 }
 
 int main(){
-	API_Module("09ele1,table,a<0&b>0");
+    //addAttr("D_1", "Balance", "ele1", 8, 0, 1);
+    //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
+	API_Module("09ele2,Balance,a<0&b>0");
     while (1);
 } 
 

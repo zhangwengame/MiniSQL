@@ -17,16 +17,16 @@ struct attr_info{
 	string name;
 };
 
+struct index_info{
+};
+
 struct conditionInfo{
     int type,symbol;
     attr_info *left;
     int right;
 };
 
-struct index_info{
-};
-
-char *lsplit=" ",*esplit=",";
+//char *lsplit=" ",*esplit=",";
 
 void Close_Database(string DB_Name,bool closetype);
 void Close_File(string DB_Name,string filename,int filetype,bool closetype);
