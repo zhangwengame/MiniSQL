@@ -1,4 +1,30 @@
 #include "Catalog.h"
+bool existDatabase(string DB_Name){
+	int DBcount;
+	string path = "Catalog//DB_Name.dat";
+	FILE *fout = fopen(path.c_str(), "r");
+	char name[25];
+	fscanf(fout, "%d", &DBcount);
+	for (int i = 1; i <= DBcount; i++)
+	{
+		fseek(fout, 20 * i, 0);
+		fscanf(fout, "%s", name);
+		if (string(name) == DB_Name)
+		{			
+			fclose(fout);
+			return true;
+		}
+	}
+	return false;
+}
+bool existTable(string DB_Name, string Table_Name){
+	string dpath = DB_Name + "//" + Table_Name + ".0.dat";
+	FILE *fout = fopen(dpath.c_str(), "r+");
+	if (fout == NULL)
+		return false;
+	else
+		return true;
+}
 void createDatabase(string DB_Name){
 	int DBcount;
 	char name[25];
@@ -21,16 +47,22 @@ void createDatabase(string DB_Name){
 	fseek(fout, 20*DBcount, 0);
 	fprintf(fout, "%s", DB_Name.c_str());
 	fclose(fout);
+	string dpath = DB_Name + "//";
+	CreateDirectory(dpath.c_str(), NULL);
 	return;
 }
 void createTable(string DB_Name, string Table_Name)
 { 
 	int attrCount;
-	string path = "Catalog//" + DB_Name+"//";
+	string dpath = DB_Name + "//" + Table_Name + ".0.dat";
+	string path = "Catalog//" + DB_Name+"//";	
 	CreateDirectory(path.c_str(), NULL);
-	path = path + Table_Name + ".dat";
+	path = path + Table_Name + ".dat";	
 	FILE *fout = fopen(path.c_str(), "w");
 	fprintf(fout, "0");	
+	fclose(fout);
+	fout = fopen(dpath.c_str(), "w");
+	fprintf(fout, " ");
 	fclose(fout);
 	return;
 }

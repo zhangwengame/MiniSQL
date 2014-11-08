@@ -37,12 +37,18 @@
 	 /*
 	 40字符/表 0~19 属性名 20~22 长度 23 属性类型(0普通 1主键) 24数据类型 (0 int ,1 char,2 float) 25是否索引 26~40索引名
 	 */
-	 createDatabase("D_1");
+	/* createDatabase("D_1");
+	 printf("%d\n", existTable("D_1", "Balance"));
 	 createTable("D_1", "Balance");
 	 addAttr("D_1", "Balance", "account", 8, 0, 1);
 	 addAttr("D_1", "Balance", "accounsa", 0, 0, 0);
-	 createTable("D_2", "Balance");
+	 printf("%d\n", existTable("D_1", "Balance"));*/
+	/* printf("%d\n", existDatabase("D_1"));
+	 printf("%d\n", existDatabase("D_2"));*/
+	// createDatabase("D_2");
+	// printf("%d\n", existDatabase("D_2"));
+	/* createTable("D_2", "Balance");
 	 addAttr("D_2", "Balance", "account", 8, 0, 1);
-	 addAttr("D_2", "Balance", "accounsa", 0, 0, 0);
+	 addAttr("D_2", "Balance", "accounsa", 0, 0, 0);*/
 	  while (1);
  }
