@@ -89,6 +89,37 @@ void createTable(string DB_Name, string Table_Name)
 	fclose(fout);
 	return;
 }
+void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name){
+	int attrNo = attrOrder(DB_Name, Table_Name, Attr_Name);
+	if (attrNo == 0)
+	{
+		printf("ERROR: There is no such attribute!\n");
+		return;
+	}
+	if (Index_Name.length() > 14)
+	{
+		printf("ERROR: Index %s's name is too long!", Index_Name.c_str());
+		return;
+	}
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fUpdate = fopen(path.c_str(), "r+");
+	fseek(fUpdate, 20 + (attrNo - 1) * 40+25,0);
+	char t = fgetc(fUpdate);
+	if (t == '1')
+	{
+		printf("ERROR: There is already an index!\n");
+		return;
+	}
+	fseek(fUpdate, 20 + (attrNo - 1) * 40 + 25, 0);
+	fprintf(fUpdate, "1");
+	fprintf(fUpdate, "%s", Index_Name.c_str());
+	fclose(fUpdate);
+	/*--------------*/
+	string dpath = DB_Name + "//" + Table_Name + ".1.dat";
+	FILE *fout = fopen(dpath.c_str(), "w");
+	fprintf(fout, "001#001");
+	fclose(fout);
+}
 //Do not verify uniqueness of attrs
 void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, int Attr_Type, int Data_Type)
 {
