@@ -28,11 +28,11 @@ void writeBlock(string DB_Name, blockInfo *block){
 	fprintf(fout, "%c",block->cBlock[i] );
 	fclose(fout);
 }
-void closeFile(fileInfo* F, string DB_Name, string m_fileName,string m_attrName,int m_fileType, bufferInfo* bufferInfo){
+void closeFile(fileInfo* F, string DB_Name, string fileName,string attrName,int fileType, bufferInfo* bufferInfo){
 	fileInfo *file,*ite;
 	if (F == NULL)
 	{
-		file = existFile(DB_Name, m_fileName, m_attrName,m_fileType, bufferInfo);
+		file = existFile(DB_Name, fileName, attrName,fileType, bufferInfo);
 		if (file == NULL) return;
 	}
 	else
@@ -55,18 +55,18 @@ void closeFile(fileInfo* F, string DB_Name, string m_fileName,string m_attrName,
 	delete file;
 	bufferInfo->fileCount--;
 }
-fileInfo* getfile(string DB_Name, string fileName, string attrName, int m_fileType, bufferInfo* bufferInfo){
+fileInfo* getfile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo){
 	fileInfo *ret;
-	ret = existFile(DB_Name, fileName, attrName,m_fileType, bufferInfo);
+	ret = existFile(DB_Name, fileName, attrName,fileType, bufferInfo);
 	if (ret != NULL) return ret;
 	/*---------------------------------------*/
 	if (bufferInfo->fileCount >= MAX_FILE_ACTIVE)
 		closeFile(bufferInfo->fileHandle, "", "", attrName,0, bufferInfo);
-	ret = new fileInfo(DB_Name,fileName,m_fileType);
+	ret = new fileInfo(DB_Name,fileName,fileType);
 	std::ifstream fin;
 	string path;
 	path = DB_Name + "//" + fileName;
-	if (m_fileType == 0)
+	if (fileType == 0)
 		path = path + ".0.dat";
 	else
 	{
@@ -148,23 +148,23 @@ blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
 		path += ".0.dat";
 	else
 		path += "_"+file->attrName+".1.dat";
-	fin.open(path);
+	fin.open(path.c_str());
 	fin.seekg(BLOCK_LEN*blockNum, std::ios::beg);
 	fin.get(block->cBlock, BLOCK_LEN, '~');
 	fin.close();
 
 	return block;
 }
-blockInfo* readBlock(string DB_Name, string m_fileName, string attrName, int m_blockNum, int m_fileType, bufferInfo* bufferInfo)
+blockInfo* readBlock(string DB_Name, string fileName, string attrName, int blockNum, int fileType, bufferInfo* bufferInfo)
 {
 	fileInfo *file;
-	file = existFile(DB_Name, m_fileName, attrName, m_fileType, bufferInfo);
+	file = existFile(DB_Name, fileName, attrName, fileType, bufferInfo);
 	if (file == NULL)
-		file = getfile(DB_Name, m_fileName, attrName, m_fileType, bufferInfo);
+		file = getfile(DB_Name, fileName, attrName, fileType, bufferInfo);
 	blockInfo *block;
-	block = existBlock(file, m_blockNum);
+	block = existBlock(file, blockNum);
 	if (block == NULL)
-		block = getblock(file, m_blockNum, bufferInfo);
+		block = getblock(file, blockNum, bufferInfo);
 	return block;
 }
 void closeDatabase(string DB_Name, bufferInfo* bufferInfo){
