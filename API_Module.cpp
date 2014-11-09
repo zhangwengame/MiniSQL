@@ -9,8 +9,10 @@ attr_info print[32];
 void API_Module(string SQL)
 {
 	string Type,Attr,Index_Name,Attr_Name,Condition,index_name[32],Cond_Info;
+	string attr_list[10];
+	char* asplit=".";
 	int index1,index2,end,length,offset,type,count,num,record_Num,Count,i;
-	int attr_num[10];
+	int attr_num[10],ind;
 	//index_info nodes[32];
 	conditionInfo conds[10];
 	//attr_info print[32];
@@ -120,8 +122,7 @@ void API_Module(string SQL)
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//选择语句(无where子句)
-	//else if(Type=="20")
-	if (1)
+	/*else */if(Type=="20")
 	{
 		if(DB_Name[1]==0)
 			cout<<"error: you have not specified the database to be used!"<<endl;
@@ -135,23 +136,29 @@ void API_Module(string SQL)
 				cout<<"error: can not select from more than one table!"<<endl;
 			else
 			{
-				//获取显示记录格式
-				if(Attr=="*")
-					//Get_Attr_Info_All(DB_Name,Table_Name,print,count);
-					attr_num[0]=0;
+				if(Attr=="*"){
+					Select_No_Where(DB_Name,Table_Name,print,0,1);
+                }
 				else {
-					//Get_Attr_Info(DB_Name,Table_Name,print,count,Attr);
-                    print[0].num=attrOrder(DB_Name,Table_Name,Attr);
-                    }	
-				if(count!=0)
-					Select_No_Where(DB_Name,Table_Name,print,1);
+                    count=0;
+                    ind=Attr.find('.');
+                    while (ind!=-1){
+                       attr_list[count++]=Attr.substr(0,ind);
+                       Attr=Attr.substr(ind+1,Attr.length()-ind-1);
+                       ind=Attr.find('.');
+                    }
+                    attr_list[count++]=Attr;
+                    for (i=0;i<count;i++)
+                        print[i].num=attrOrder(DB_Name,Table_Name,attr_list[i]);
+					Select_No_Where(DB_Name,Table_Name,print,count,0);
+                }
 			}
 		}		
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//选择语句(有where子句)
-	/*else if(Type=="21")
+	else if(Type=="21")
 	{
 		if(0==DB_Name.length())
 			cout<<"error: you have not specified the database to be used!"<<endl;
@@ -184,24 +191,32 @@ void API_Module(string SQL)
             for (i=0;i<num;i++){
                 conds[i]=Str_To_Conds(conds_str[i]);
 				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
-			}*/
+			}
             
-			//Table_Name=Table_Name.Left(Table_Name.GetLength()-1);
-			/*if(Table_Name.find(' ')!=-1)
+			if(Table_Name.find(' ')!=-1)
 				cout<<"error: can not select from more than one table!"<<endl;
 			else
 			{
-				if(Attr=="*")
-					Get_Attr_Info_All(DB_Name,Table_Name,print,count);
-				else
-					Get_Attr_Info(DB_Name,Table_Name,print,count,Attr);	
-				if(count!=0)
-					Select_No_Where(DB_Name,Table_Name,print,count);
-					Select_With_Where(DB_Name,Table_Name,conds,num-1,AO,print,count)
-			}
-		}		
-	}*/
-	
+				if(Attr=="*"){
+                    Select_With_Where(DB_Name,Table_Name,conds,2,'a',print,0,1);
+					//Select_No_Where(DB_Name,Table_Name,print,0,1);
+                }
+				else {
+                    count=0;
+                    ind=Attr.find('.');
+                    while (ind!=-1){
+                       attr_list[count++]=Attr.substr(0,ind);
+                       Attr=Attr.substr(ind+1,Attr.length()-ind-1);
+                       ind=Attr.find('.');
+                    }
+                    attr_list[count++]=Attr;
+                    for (i=0;i<count;i++)
+                        print[i].num=attrOrder(DB_Name,Table_Name,attr_list[i]);
+					Select_With_Where(DB_Name,Table_Name,conds,2,AO,print,count,0);
+				}
+			}		
+		}
+    }
 }
 
 conditionInfo Str_To_Conds(string str){
@@ -209,19 +224,19 @@ conditionInfo Str_To_Conds(string str){
     int index=-1;
     index=str.find('<');
     if (index>0){
-        (conds.left->name).assign(str.substr(0,index));
+        conds.left=str.substr(0,index);
         conds.symbol=-1;
         conds.right=(int)str[index+1]-48;
     }
     index=str.find('=');
     if (index>0){
-        (conds.left->name).assign(str.substr(0,index));
+        conds.left=str.substr(0,index);
         conds.symbol=0;
         conds.right=(int)str[index+1]-48;
     }
     index=str.find('>');
     if (index>0){
-        (conds.left->name).assign(str.substr(0,index));
+        conds.left=str.substr(0,index);
         conds.symbol=1;
         conds.right=(int)str[index+1]-48;
     }
@@ -231,7 +246,8 @@ conditionInfo Str_To_Conds(string str){
 int main(){
     //addAttr("D_1", "Balance", "ele1", 8, 0, 1);
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
-	API_Module("09ele2,Balance,a<0&b>0");
+    //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
+	API_Module("21*,Balance,ele1>3&elem2>1");
     while (1);
 } 
 
