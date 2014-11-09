@@ -2,16 +2,16 @@
 bool existDatabase(string DB_Name){
 	int DBcount;
 	string path = "Catalog//DB_Name.dat";
-	FILE *fout = fopen(path.c_str(), "r");
+	FILE *fIn = fopen(path.c_str(), "r");
 	char name[25];
-	fscanf(fout, "%d", &DBcount);
+	fscanf(fIn, "%d", &DBcount);
 	for (int i = 1; i <= DBcount; i++)
 	{
-		fseek(fout, 20 * i, 0);
-		fscanf(fout, "%s", name);
+		fseek(fIn, 20 * i, 0);
+		fscanf(fIn, "%s", name);
 		if (string(name) == DB_Name)
 		{			
-			fclose(fout);
+			fclose(fIn);
 			return true;
 		}
 	}
@@ -19,39 +19,38 @@ bool existDatabase(string DB_Name){
 }
 bool existTable(string DB_Name, string Table_Name){
 	string path = "Catalog//"+DB_Name+"//"+Table_Name+".dat";
-	FILE *fout = fopen(path.c_str(), "r+");
-	if (fout == NULL)
+	FILE *fUpdate = fopen(path.c_str(), "r+");
+	if (fUpdate == NULL)
 		return false;
 	else
 	{
-		fclose(fout);
+		fclose(fUpdate);
 		return true;
 	}		
 }
 int attrOrder(string DB_Name, string Table_Name, string Attr_Name){
-	string path = "Catalog//" + DB_Name + "//";
-	path = path + Table_Name + ".dat";
-	FILE *fin = fopen(path.c_str(), "r");
-	int attrCount;
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fIn = fopen(path.c_str(), "r");
+	int Attrcount;
 	char name[25];
-	fscanf(fin, "%d", &attrCount);
-	for (int i = 0; i < attrCount; i++)
+	fscanf(fIn, "%d", &Attrcount);
+	for (int i = 0; i < Attrcount; i++)
 	{
-		fseek(fin, 20+40 * i, 0);
+		fseek(fIn, 20 + 40 * i, 0);
 		for (int j = 0; j < 20; j++)
 		{
-			name[j] = fgetc(fin);
+			name[j] = fgetc(fIn);
 			if (name[j] == 0)
 				break;
 		}
 		name[20] = 0;
 		if (string(name) == Attr_Name)
 		{
-			fclose(fin);
+			fclose(fIn);
 			return i + 1;
 		}			
 	}
-	fclose(fin);
+	fclose(fIn);
 	return 0;
 }
 void createDatabase(string DB_Name){
@@ -63,28 +62,27 @@ void createDatabase(string DB_Name){
 	int DBcount;
 	char name[25];
 	string path = "Catalog//DB_Name.dat";	
-	FILE *fout = fopen(path.c_str(), "r+");
-	fscanf(fout, "%d", &DBcount);
-	fseek(fout, 0, 0);
-	fprintf(fout, "%d\n", ++DBcount);
-	fseek(fout, 20*DBcount, 0);
-	fprintf(fout, "%s", DB_Name.c_str());
+	FILE *fUpdate = fopen(path.c_str(), "r+");
+	fscanf(fUpdate, "%d", &DBcount);
+	fseek(fUpdate, 0, 0);
+	fprintf(fUpdate, "%d\n", ++DBcount);
+	fseek(fUpdate, 20 * DBcount, 0);
+	fprintf(fUpdate, "%s", DB_Name.c_str());
 	if (DB_Name.length()<20)
-		fprintf(fout, "%c", 0);
-	fclose(fout);
+		fprintf(fUpdate, "%c", 0);
+	fclose(fUpdate);
 	string dpath ="Catalog//"+ DB_Name + "//";
 	CreateDirectory(dpath.c_str(), NULL);
 	dpath = dpath + "TA_Name.dat";
-	fout = fopen(dpath.c_str(), "w");
-	fprintf(fout, "0");
-	fclose(fout);
+	fUpdate = fopen(dpath.c_str(), "w");
+	fprintf(fUpdate, "0");
+	fclose(fUpdate);
 	dpath = DB_Name + "//";
 	CreateDirectory(dpath.c_str(), NULL);
 	return;
 }
 void createTable(string DB_Name, string Table_Name)
 { 
-	int attrCount;
 	if (existTable(DB_Name, Table_Name))
 	{
 		printf("ERROR: There is already such a table!\n");
@@ -94,25 +92,25 @@ void createTable(string DB_Name, string Table_Name)
 	string path = "Catalog//" + DB_Name+"//";	
 	CreateDirectory(path.c_str(), NULL);
 	path = path + Table_Name + ".dat";	
-	FILE *fout = fopen(path.c_str(), "w");
-	fprintf(fout, "0");	
-	fclose(fout);
+	FILE *fOut = fopen(path.c_str(), "w"),*fUpdate;
+	fprintf(fOut, "0");
+	fclose(fOut);
 	int TAcount;
 	path = "Catalog//" + DB_Name + "//TA_Name.dat";
-	fout = fopen(path.c_str(), "r+");
-	fscanf(fout, "%d", &TAcount);
-	fseek(fout, 0, 0);
-	fprintf(fout, "%d\n", ++TAcount);
-	fseek(fout, 20 * TAcount, 0);
-	fprintf(fout, "%s", Table_Name.c_str());
+	fUpdate = fopen(path.c_str(), "r+");
+	fscanf(fUpdate, "%d", &TAcount);
+	fseek(fUpdate, 0, 0);
+	fprintf(fUpdate, "%d\n", ++TAcount);
+	fseek(fUpdate, 20 * TAcount, 0);
+	fprintf(fUpdate, "%s", Table_Name.c_str());
 	if (Table_Name.length()<20)
-		fprintf(fout, "%c", 0);
-	fclose(fout);
+		fprintf(fUpdate, "%c", 0);
+	fclose(fUpdate);
 	CreateDirectory(dpath.c_str(), NULL);
 	dpath = dpath + Table_Name + ".0.dat";
-	fout = fopen(dpath.c_str(), "w");
-	fprintf(fout, " ");
-	fclose(fout);
+	fOut = fopen(dpath.c_str(), "w");
+	fprintf(fOut, " ");
+	fclose(fOut);
 	return;
 }
 void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name){
@@ -143,9 +141,9 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 	fclose(fUpdate);
 	/*--------------*/
 	string dpath = DB_Name + "//" + Table_Name + "//" + Table_Name + "_"+ Attr_Name+".1.dat";
-	FILE *fout = fopen(dpath.c_str(), "w");
-	fprintf(fout, "001#001");
-	fclose(fout);
+	FILE *fOut = fopen(dpath.c_str(), "w");
+	fprintf(fOut, "001#001");
+	fclose(fOut);
 }
 //Do not verify uniqueness of attrs
 void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, int Attr_Type, int Data_Type)
@@ -165,22 +163,22 @@ void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, 
 		printf("ERROR: Attribute name confilcts!\n");
 		return;
 	}
-	int attrCount;
+	int Attrcount;
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
 	FILE *fUpdate = fopen(path.c_str(), "r+");
-	fscanf(fUpdate, "%d", &attrCount);
-	fseek(fUpdate, 20 + attrCount * 40, 0);
+	fscanf(fUpdate, "%d", &Attrcount);
+	fseek(fUpdate, 20 + Attrcount * 40, 0);
 	fprintf(fUpdate, "%s", Attr_Name.c_str());
-	fseek(fUpdate, 20 + attrCount * 40 + 20, 0);
+	fseek(fUpdate, 20 + Attrcount * 40 + 20, 0);
 	fprintf(fUpdate, "%d", Attr_Len);
-	fseek(fUpdate, 20 + attrCount * 40 + 23, 0);
+	fseek(fUpdate, 20 + Attrcount * 40 + 23, 0);
 	fprintf(fUpdate, "%d", Attr_Type);
-	fseek(fUpdate, 20 + attrCount * 40 + 24, 0);
+	fseek(fUpdate, 20 + Attrcount * 40 + 24, 0);
 	fprintf(fUpdate, "%d", Data_Type);
-	fseek(fUpdate, 20 + attrCount * 40 + 25, 0);
+	fseek(fUpdate, 20 + Attrcount * 40 + 25, 0);
 	fprintf(fUpdate, "%d",0);
 	fseek(fUpdate,0, 0);
-	fprintf(fUpdate, "%d", attrCount+1);
+	fprintf(fUpdate, "%d", Attrcount + 1);
 	fclose(fUpdate);
 	return;
 }
@@ -217,11 +215,11 @@ void dropTable(string DB_Name, string Table_Name){
 	}
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
 	FILE* fUpdate = fopen(path.c_str(), "r+");
-	int attrCount;
+	int Attrcount;
 	char c,name[25];
 	string indexPath,recordPath,tablePath,tableNamePath;
-	fscanf(fUpdate, "%d", &attrCount);
-	for (int i = 0; i < attrCount; i++)
+	fscanf(fUpdate, "%d", &Attrcount);
+	for (int i = 0; i < Attrcount; i++)
 	{
 		fseek(fUpdate, 20 + i * 40+25, 0);
 		c = fgetc(fUpdate);
@@ -246,9 +244,9 @@ void dropTable(string DB_Name, string Table_Name){
 	fclose(fUpdate);
 	tableNamePath = "Catalog//" + DB_Name + "//TA_Name.dat";
 	fUpdate = fopen(tableNamePath.c_str(),"r+");
-	int tableCount;
-	fscanf(fUpdate,"%d", &tableCount);
-	for (int i = 0; i < tableCount; i++)
+	int TAcount;
+	fscanf(fUpdate, "%d", &TAcount);
+	for (int i = 0; i < TAcount; i++)
 	{
 		fseek(fUpdate, 20 + i * 20, 0);
 		for (int j = 0; j < 20; j++)
@@ -274,9 +272,9 @@ void dropDatabase(string DB_Name){
 	tableNamePath = "Catalog//" + DB_Name + "//TA_Name.dat";
 	FILE* fUpdate = fopen(tableNamePath.c_str(), "r");
 	char name[25];
-	int tableCount;
-	fscanf(fUpdate, "%d", &tableCount);
-	for (int i = 0; i < tableCount; i++)
+	int TAcount;
+	fscanf(fUpdate, "%d", &TAcount);
+	for (int i = 0; i < TAcount; i++)
 	{
 		fseek(fUpdate, 20 + i * 20, 0);
 		for (int j = 0; j < 20; j++)
@@ -296,10 +294,10 @@ void dropDatabase(string DB_Name){
 	databaseData = DB_Name + "//";
 	RemoveDirectory(databaseData.c_str());
 	databaseNamePath = "Catalog//DB_Name.dat";
-	int databaseCount;
+	int DBcount;
 	fUpdate = fopen(databaseNamePath.c_str(),"r+");
-	fscanf(fUpdate, "%d", &databaseCount);
-	for (int i = 0; i < databaseCount; i++)
+	fscanf(fUpdate, "%d", &DBcount);
+	for (int i = 0; i < DBcount; i++)
 	{
 		fseek(fUpdate, 20 + i * 20, 0);
 		for (int j = 0; j < 20; j++)

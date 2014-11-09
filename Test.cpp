@@ -67,7 +67,7 @@
 	 printf("%d\n", attrOrder("D_1", "Balance", "account"));
 	 printf("%d\n", attrOrder("D_1", "Balance", "accounsa"));
 	 printf("%d\n", attrOrder("D_1", "Balance", "aaaaabbbbbcccccddddd"));*/
-	 createDatabase("D_1");
+	// createDatabase("D_1");
 	
 	 createTable("D_1", "Balance");
      createTable("D_1", "Balance1");
