@@ -23,7 +23,10 @@ bool existTable(string DB_Name, string Table_Name){
 	if (fout == NULL)
 		return false;
 	else
+	{
+		fclose(fout);
 		return true;
+	}		
 }
 int attrOrder(string DB_Name, string Table_Name, string Attr_Name){
 	string path = "Catalog//" + DB_Name + "//";
@@ -43,7 +46,10 @@ int attrOrder(string DB_Name, string Table_Name, string Attr_Name){
 		}
 		name[20] = 0;
 		if (string(name) == Attr_Name)
+		{
+			fclose(fin);
 			return i + 1;
+		}			
 	}
 	fclose(fin);
 	return 0;
@@ -63,6 +69,8 @@ void createDatabase(string DB_Name){
 	fprintf(fout, "%d\n", ++DBcount);
 	fseek(fout, 20*DBcount, 0);
 	fprintf(fout, "%s", DB_Name.c_str());
+	if (DB_Name.length()<20)
+		fprintf(fout, "%c", 0);
 	fclose(fout);
 	string dpath ="Catalog//"+ DB_Name + "//";
 	CreateDirectory(dpath.c_str(), NULL);
@@ -97,6 +105,8 @@ void createTable(string DB_Name, string Table_Name)
 	fprintf(fout, "%d\n", ++TAcount);
 	fseek(fout, 20 * TAcount, 0);
 	fprintf(fout, "%s", Table_Name.c_str());
+	if (Table_Name.length()<20)
+		fprintf(fout, "%c", 0);
 	fclose(fout);
 	CreateDirectory(dpath.c_str(), NULL);
 	dpath = dpath + Table_Name + ".0.dat";
@@ -123,6 +133,7 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 	char t = fgetc(fUpdate);
 	if (t == '1')
 	{
+		fclose(fUpdate);
 		printf("ERROR: There is already an index!\n");
 		return;
 	}
@@ -205,4 +216,106 @@ void dropTable(string DB_Name, string Table_Name){
 		return;
 	}
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE* fUpdate = fopen(path.c_str(), "r+");
+	int attrCount;
+	char c,name[25];
+	string indexPath,recordPath,tablePath,tableNamePath;
+	fscanf(fUpdate, "%d", &attrCount);
+	for (int i = 0; i < attrCount; i++)
+	{
+		fseek(fUpdate, 20 + i * 40+25, 0);
+		c = fgetc(fUpdate);
+		fseek(fUpdate, 20 + i * 40, 0);
+		if (c == '1')
+		{
+			for (int j = 0; j < 20; j++)
+			{
+				name[j] = fgetc(fUpdate);
+				if (name[j] == 0)
+					break;
+			}
+			name[20] = 0;
+			indexPath = DB_Name + "//" + Table_Name + "//" + Table_Name+"_"+string(name)+".1.dat";
+			DeleteFile(indexPath.c_str());
+		}
+	}
+	recordPath = DB_Name + "//" + Table_Name + "//" + Table_Name + ".0.dat";
+	DeleteFile(recordPath.c_str());
+	tablePath = DB_Name + "//" + Table_Name + "//";
+	RemoveDirectory(tablePath.c_str());
+	fclose(fUpdate);
+	tableNamePath = "Catalog//" + DB_Name + "//TA_Name.dat";
+	fUpdate = fopen(tableNamePath.c_str(),"r+");
+	int tableCount;
+	fscanf(fUpdate,"%d", &tableCount);
+	for (int i = 0; i < tableCount; i++)
+	{
+		fseek(fUpdate, 20 + i * 20, 0);
+		for (int j = 0; j < 20; j++)
+		{
+			name[j] = fgetc(fUpdate);
+			if (name[j] == 0)
+				break;
+		}
+		name[20] = 0;
+		if (string(name) == Table_Name)
+		{
+			fseek(fUpdate, 20 + i * 20, 0);
+			for (int j = 0; j < 20; j++)
+				fprintf(fUpdate, "%c", 0);
+			break;
+		}
+	}
+	fclose(fUpdate);
+	DeleteFile(path.c_str());
+}
+void dropDatabase(string DB_Name){
+	string tableNamePath,databaseCatalog,databaseData,databaseNamePath;
+	tableNamePath = "Catalog//" + DB_Name + "//TA_Name.dat";
+	FILE* fUpdate = fopen(tableNamePath.c_str(), "r");
+	char name[25];
+	int tableCount;
+	fscanf(fUpdate, "%d", &tableCount);
+	for (int i = 0; i < tableCount; i++)
+	{
+		fseek(fUpdate, 20 + i * 20, 0);
+		for (int j = 0; j < 20; j++)
+		{
+			name[j] = fgetc(fUpdate);
+			if (name[j] == 0)
+				break;
+		}
+		name[20] = 0;
+		if (strlen(name) != 0)
+			dropTable(DB_Name, string(name));
+	}
+	fclose(fUpdate);
+	DeleteFile(tableNamePath.c_str());
+	databaseCatalog = "Catalog//" + DB_Name + "//";
+	RemoveDirectory(databaseCatalog.c_str());
+	databaseData = DB_Name + "//";
+	RemoveDirectory(databaseData.c_str());
+	databaseNamePath = "Catalog//DB_Name.dat";
+	int databaseCount;
+	fUpdate = fopen(databaseNamePath.c_str(),"r+");
+	fscanf(fUpdate, "%d", &databaseCount);
+	for (int i = 0; i < databaseCount; i++)
+	{
+		fseek(fUpdate, 20 + i * 20, 0);
+		for (int j = 0; j < 20; j++)
+		{
+			name[j] = fgetc(fUpdate);
+			if (name[j] == 0)
+				break;
+		}
+		name[20] = 0;
+		if (string(name) == DB_Name)
+		{
+			fseek(fUpdate, 20 + i * 20, 0);
+			for (int j = 0; j < 20; j++)
+				fprintf(fUpdate, "%c", 0);
+			break;
+		}
+	}
+	fclose(fUpdate);
 }
