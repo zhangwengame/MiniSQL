@@ -67,8 +67,22 @@
 	 printf("%d\n", attrOrder("D_1", "Balance", "account"));
 	 printf("%d\n", attrOrder("D_1", "Balance", "accounsa"));
 	 printf("%d\n", attrOrder("D_1", "Balance", "aaaaabbbbbcccccddddd"));*/
-	// createIndex("D_1", "Balance", "accounts", "index1");
+	// createDatabase("D_1");
+	
+	// createTable("D_1", "Balance1");
+	 /*string dpath = "D_1//";
+	 CreateDirectory(dpath.c_str(), NULL);*/
+	/* createTable("D_1", "Balance");
+	 addAttr("D_1", "Balance", "account", 8, 0, 1);
+	 addAttr("D_1", "Balance", "accounsa", 0, 0, 0);*/
 	 createIndex("D_1", "Balance", "account", "index1");
+	 //dropIndex("D_1", "Balance", "account", "index1");
+	// createIndex("D_1", "Balance", "account", "index2");
+	// createIndex("D_1", "Balance", "accounts", "index1");
+	/* createIndex("D_1", "Balance", "account", "index1");
+	 createIndex("D_1", "Balance", "account", "index1");
+	 dropIndex("D_1", "Balance", "account", "index1");
+	 createIndex("D_1", "Balance", "account", "index2");*/
 	 //createIndex("D_1", "Balance", "account", "index2");
 	  while (1);
  }
