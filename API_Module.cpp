@@ -12,7 +12,7 @@ void API_Module(string SQL)
 	string attr_list[10];
 	char* asplit=".";
 	int index1,index2,end,length,offset,type,count,num,record_Num,Count,i;
-	int attr_num[10],ind;
+	int attr_num[10],ind,index;
 	//index_info nodes[32];
 	conditionInfo conds[10];
 	//attr_info print[32];
@@ -20,32 +20,36 @@ void API_Module(string SQL)
 	bool ok;
 	string conds_str[10];
 	Type.assign(SQL,0,2);
-	cout<<Type<<endl;
 	SQL.assign(SQL,2,SQL.length()-2);
-	cout<<SQL<<endl;
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//创建数据库
-	/*if(Type=="00")
-		Create_Database(SQL);
+	if(Type=="00")
+		createDatabase(SQL);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//创建数据表
 	else if(Type=="01")
 	{
-		if(DB_Name.IsEmpty())
+		if(0==DB_Name.length())
 			cout<<"error: you have not specified the database to be used!"<<endl;
 		else
 		{
-			index=SQL.Find(',');
-			Table_Name=SQL.Left(index);
-			Attr=SQL.Right(SQL.GetLength()-index-1);
-			Attr_Name.Empty();
-			//创建数据表
-			Create_Table(Table_Name,Attr,DB_Name,Attr_Name);
+            index=SQL.find(',');
+			Table_Name=SQL.substr(0,index);
+			Attr=SQL.substr(index+1,SQL.length()-index-1);
+			cout<<Table_Name<<" "<<Attr<<endl;
+			createTable(DB_Name,Table_Name);
+			index=Attr.find('.');
+			while (index>0){
+                  addAttr(DB_Name,Table_Name,Attr.substr(0,index),8,0,0);
+                  Attr=Attr.substr(index+1);
+                  index=Attr.find('.');
+            }
+            if (Attr.length()>0) addAttr(DB_Name,Table_Name,Attr,8,0,0);
 			//判断是否创建主键索引
-			if(!Attr_Name.IsEmpty())
-				Create_Index(Table_Name,Table_Name,Attr_Name,DB_Name,length,offset,type);
+			/*if(!Attr_Name.IsEmpty())
+				Create_Index(Table_Name,Table_Name,Attr_Name,DB_Name,length,offset,type);*/
 		}		
 	}
 
@@ -53,23 +57,19 @@ void API_Module(string SQL)
 	//创建索引
 	else if(Type=="02")
 	{
-		if(DB_Name.IsEmpty())
+		if(0==DB_Name.length())
 			cout<<"error: you have not specified the database to be used!"<<endl;
 		else
 		{
-			index=SQL.Find(' ');
-			//获取索引名
-			Index_Name=SQL.Left(index);
+			index=SQL.find(',');
+			Table_Name=SQL.substr(0,index);
 			index++;
-			end=SQL.Find(' ',index);
-			//获取表名
-			Table_Name=SQL.Mid(index,end-index);
-			//获取属性名
-			Attr=SQL.Right(SQL.GetLength()-end-1);
-			Create_Index(Index_Name,Table_Name,Attr,DB_Name,length,offset,type);
-			//插入所有索引节点
-			if(length!=-1)
-				Insert_Index_All(DB_Name,Table_Name,Index_Name,length,offset,type);			
+			SQL=SQL.substr(index);
+			index=SQL.find(',');
+			Attr_Name=SQL.substr(0,index);
+			Index_Name=SQL.substr(index+1);
+			//cout<<Table_Name<<" "<<Attr_Name<<" "<<Index_Name<<endl;
+			createIndex(DB_Name,Table_Name,Attr_Name,Index_Name);	
 		}
 	}
 
@@ -77,29 +77,22 @@ void API_Module(string SQL)
 	//删除数据库
 	else if(Type=="10")
 	{
-		if(SQL==DB_Name)
-		{
-			//释放数据库的内存
-			Close_Database(DB_Name,false);
-			DB_Name.Empty();
-		}
-		Drop_Database(SQL);
+        //closeDatabase(DB_Name,run);
+        if (SQL==DB_Name)
+           dropDatabase(DB_Name);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//删除数据表
-	else if(Type=="11")
+	/*else if(Type=="11")
 	{
 		if(DB_Name.IsEmpty())
 			cout<<"error: you have not specified the database to be used!"<<endl;
 		else
 		{
 			Table_Name=SQL;
-			//释放表的内存
-			Close_File(DB_Name,Table_Name,0,false);
-			//删除表文件
+			closeFile(DB_Name,Table_Name,0,false);
 			Drop_Table(Table_Name,DB_Name,index_name,count);
-			//释放表中所有索引的内存
 			for(index=0;index<count;index++)
 				Close_File(DB_Name,index_name[index],1,false);
 		}
@@ -122,7 +115,7 @@ void API_Module(string SQL)
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	//选择语句(无where子句)
-	/*else */if(Type=="20")
+	else if(Type=="20")
 	{
 		if(DB_Name[1]==0)
 			cout<<"error: you have not specified the database to be used!"<<endl;
@@ -166,14 +159,12 @@ void API_Module(string SQL)
 		{
 			index1=SQL.find(',');
 			Attr=SQL.substr(0,index1);
-				cout<<Attr<<endl;
 			index1++;
 			SQL=SQL.substr(index1,SQL.length()-index1);
 			index2=SQL.find(',',0);
 			Table_Name=SQL.substr(0,index2);
 			index2++;
 			Cond_Info=SQL.substr(index2,SQL.length()-index2);
-				cout<<Table_Name<<endl;
 			
 			num=0;
 			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1))
@@ -198,8 +189,7 @@ void API_Module(string SQL)
 			else
 			{
 				if(Attr=="*"){
-                    Select_With_Where(DB_Name,Table_Name,conds,2,'a',print,0,1);
-					//Select_No_Where(DB_Name,Table_Name,print,0,1);
+                    Select_With_Where(DB_Name,Table_Name,conds,num,'a',print,0,1);
                 }
 				else {
                     count=0;
@@ -247,7 +237,10 @@ int main(){
     //addAttr("D_1", "Balance", "ele1", 8, 0, 1);
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
+    //API_Module("01Balance,ele1.ele2.ele3");
 	API_Module("21*,Balance,ele1>3&elem2>1");
+	//API_Module("02Balance,ele1,ind1");
+	//API_Module("10D_1");
     while (1);
 } 
 

@@ -10,14 +10,6 @@ void Print_Head(attr_info print[32],int count){
 }
 
 void Print_To_Screen(string record,attr_info print[32],int count);
-
-/*void Select_Without_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,attr_info print[32],int Count,char cond){
-    if (NULL==conds[0].left)
-        Select_No_Where(DB_Name,Table_Name,print,count,1); 
-    else
-        Select_With_Where(DB_Name,Table_Name,conds,count,cond,print,Count,1);
-}*/
-
 void Select_With_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,attr_info print[32],int Count,char cond,int index);
 void Select_With_Equal_Cond(string DB_Name,string Table_Name,conditionInfo conds[32],int count,attr_info print[32],int Count,char cond,index_info Index);
 void Select_With_Greater_Cond(string DB_Name,string Table_Name,conditionInfo conds[32],int count,attr_info print[32],int Count,char cond,index_info Index,int type);
@@ -58,12 +50,12 @@ bool Confirm(string DB_Name,string Table_Name,char *detail[10],conditionInfo con
      return true;
 }
         
-void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all){}
-    /*blockInfo *head,*ptr;
+void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all){
+    blockInfo *head,*ptr;
     fileInfo *file;
     int need[10],i,j,bi,li,lnum;
     char *line,*detail[10],*elem,*line_c[100];
-    char *lsplit=" ",*esplit=","; 
+    char *lsplit=";",*esplit=",",*space=" ";
     
     for (i=0;i<count;i++)
         need[i]=print[i].num;
@@ -75,12 +67,14 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
         line=strtok(head->cBlock,lsplit);
         li=0;
         while (line!=NULL){
-              //printf("%s\n",line);
               line_c[li]=line;
               li++;
               line=strtok(NULL,lsplit);
         }
-        lnum=li;
+        lnum=li-1;
+        for (li=0;li<lnum;li++){
+            line_c[li]=strtok(line_c[li],space);
+        }
         
         for (li=0;li<lnum;li++){
             elem=strtok(line_c[li],esplit);
@@ -97,17 +91,17 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
             else
                 for (i=0;i<count;i++)
                     printf("%s\t",detail[need[i]]);
-            //printf("\n"); 
+            printf("\n"); 
         }
-    } 
-}*/
+    }
+}
 
 void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,attr_info print[32],int Count,int all){
     blockInfo *head,*ptr;
     fileInfo *file;
     int need[10],i,j,bi,li,lnum;
     char *line,*detail[10],*elem,*line_c[100];
-    char *lsplit=" ",*esplit=","; 
+    char *lsplit=";",*esplit=",",*space=" "; 
     
     for (i=0;i<Count;i++)
         need[i]=print[i].num;
@@ -122,7 +116,11 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
               li++;
               line=strtok(NULL,lsplit);
         }
-        lnum=li;
+        lnum=li-1;
+        for (li=0;li<lnum;li++){
+            line_c[li]=strtok(line_c[li],space);
+        }
+        
         for (li=0;li<lnum;li++){
             elem=strtok(line_c[li],esplit);
             i=1;
@@ -138,8 +136,8 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                 else
                 for (i=0;i<Count;i++)
                     printf("%s\t",detail[need[i]]);
+                printf("345\n");
             }
-            printf("\n");
         }
     } 
 }
