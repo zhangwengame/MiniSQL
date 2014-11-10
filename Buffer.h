@@ -21,12 +21,10 @@ public:
 	bufferInfo() :fileHandle(NULL), blockHandle(NULL),fileCount(0),blockCount(0){};
 };
 struct blockInfo  {
-	int blockNum;	// the block number of the block,
-	// which indicate it when it be newed
+	int blockNum;	// the block number of the block, which indicate it when it be newed
 	bool dirtyBit;     // 0 -> flase£¬ 1 -> indicate dirty, write back
 	blockInfo *next;  	// the pointer point to next block 
 	fileInfo *file;     	// the pointer point to the file, which the block belongs to
-//	int charNum;	   	// the number of chars in the block
 	char *cBlock;	   	// the array space for storing the records in the block in buffer
 	time_t iTime;		// it indicate the age of the block in use 
 	int lock;// prevent the block from replacing
