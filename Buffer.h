@@ -4,11 +4,11 @@
 #define BLOCK_LEN			4096	// the size of one block
 #define MAX_FILE_ACTIVE 	5		// limit the active files in the buffer
 #define MAX_BLOCK			40		// the max number of the blocks
-//#include <afx.h>
-#include <time.h>
+
 #include <fstream>
 #include <set>
 #include <string.h>
+#include <Windows.h>
 using namespace std;
 struct fileInfo;
 struct blockInfo;
