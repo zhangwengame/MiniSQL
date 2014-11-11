@@ -1,30 +1,18 @@
-#ifndef _INDEX_H 
-#define _INDEX_H
+#ifndef _CATALOG_H 
+#define _CATALOG_H
 //#include <afx.h>
-#include <vector>
+#include <fstream>
+#include <windows.h>
+#include <string.h>
 using namespace std;
-struct Node
-{
-	int node_num;
-	bool leaf;
-	vector<char> value;
-	vector<int> record; //blocknum or recordnum
-	int pre;
-	int suc;
-	int parent;
-};
-struct index_info
-{
-	string index_name;
-	int length;
-	char type;
-	long offset; //在表中的行数
-	char value;
-};
-void encodeNode(const Node& p);
-Node parseNode(int block_num);
-int search_one(string database,string table_name,struct index_info& inform,int block_num);
-char split_child(Node& target,Node& new_target);
-void insert_parent(char a,int p,Node& lchild,Node& rchild);
-void insert_one(string database,string table_name,struct index_info& inform,int block_num,int line_num);
+void createDatabase(string DB_Name);
+void createTable(string DB_Name, string Table_Name);
+void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, int Attr_Type, int Data_Type);
+bool existDatabase(string DB_Name);
+bool existTable(string DB_Name, string Table_Name);
+int attrOrder(string DB_Name, string Table_Name, string Attr_Name);
+void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name);
+void dropIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name);
+void dropTable(string DB_Name, string Table_Name);
+void dropDatabase(string DB_Name);
 #endif
