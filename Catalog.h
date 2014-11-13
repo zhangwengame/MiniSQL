@@ -5,6 +5,13 @@
 #include <windows.h>
 #include <string.h>
 using namespace std;
+struct attrInfo{
+	string attrName;
+	string indexName;
+	int pri;
+	int type;
+	int index;	
+};
 void createDatabase(string DB_Name);
 void createTable(string DB_Name, string Table_Name);
 void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, int Attr_Type, int Data_Type);
@@ -15,4 +22,5 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 void dropIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name);
 void dropTable(string DB_Name, string Table_Name);
 void dropDatabase(string DB_Name);
+attrInfo *getAttrInfo(string DB_Name, string Table_Name, string Attr_Name);
 #endif
