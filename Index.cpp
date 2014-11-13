@@ -95,7 +95,7 @@ Node parseNode(int block_num){
 		p.suc=(b->cBlock[charNum-6]-'0')*100+(b->cBlock[charNum-5]-'0')*10+b->cBlock[charNum-4]-'0';
         p.parent=(b->cBlock[charNum-3]-'0')*100+(b->cBlock[charNum-2]-'0')*10+b->cBlock[charNum-1]-'0';
 		//cout<<b[t].cBlock<<endl;
-		cout<<"charNum"<<charNum<<"parent"<<p.parent<<"pre"<<p.pre<<"suc"<<p.suc<<endl;
+		cout<<"parseNode:"<<"block_num"<<block_num<<"parent"<<p.parent<<"pre"<<p.pre<<"suc"<<p.suc<<endl;
 		if (b->cBlock[0]=='!')
 		{
             p.leaf=true;
@@ -137,7 +137,7 @@ int search_one(string database,string table_name,struct index_info& inform,int b
 		for(i=0;i<tmp.value.size();i++){
 			if (inform.value==tmp.value[i])
 			{
-				inform.offset=tmp.record[i];
+				inform.offset=i;
 				return t;
 			}
             
@@ -192,14 +192,16 @@ char split_child(Node& target,Node& new_target){
 			new_target.record.push_back(target.record[j]);
 			new_target.value.push_back(target.value[j]);
  		}
+ 		new_target.record.push_back(target.record.back()); //最后一个没被考虑进去
  		for(j=capacity/2+1;j<capacity;j++){
  			target.record.pop_back();
  			target.value.pop_back();
  		}
-	new_target.record.push_back(target.record[capacity]); //最后一个没被考虑进去
-	//b[target.record[capacity]].parent=new_target.node_num;
-	new_target.leaf=false;
- 	target.record.pop_back();
+		//new_target.record.push_back(target.record.back()); //最后一个没被考虑进去
+		//b[target.record[capacity]].parent=new_target.node_num;
+		new_target.leaf=false;
+ 		target.record.pop_back();
+ 		target.value.pop_back();
  	}
  	//new_target.parent=target.parent;
  	target.suc=new_target.node_num;
@@ -331,6 +333,183 @@ void insert_one(string database,string table_name,struct index_info& inform,int 
 	for(int i=0;i<tmp.value.size();i++)
 		cout<<tmp.record[i]<<tmp.value[i]<<endl;
 }
+void delete_block(int block_num){
+	blockInfo *b;
+	b=readBlock("D_1", "Balance","account" ,0, 1, run);
+	//int new
+	b=readBlock("D_1", "Balance","account" ,block_num, 1, run);
+}
+void delete_entry(char k,int position,int offset){
+	int i;
+	//char k;
+	Node p; //当前正在操作的节点
+	blockInfo *b;
+	char mid;
+	/*b = readBlock("D_1", "Balance","account" ,block_num, 1, run);
+	root=(b->cBlock[4]-'0')*100+(b->cBlock[5]-'0')*10+(b->cBlock[6]-'0');
+	position=search_one(database,table_name,inform,root);//找到删除节点的叶子块*/
+	Node predessor,successor,parent;
+	i=offset;
+	p=parseNode(position);
+ 	for(int j=i;j<p.value.size();j++){
+			//r->data[j]=r->data[j+1];
+			p.value[j]=p.value[j+1];
+	}
+	if (p.leaf)
+		for(int j=i;j<p.record.size();j++){
+			p.record[j]=p.record[j+1];
+		}
+	else 
+		for(int j=i+1;j<p.record.size();j++){
+			p.record[j]=p.record[j+1];
+		}
+	p.value.pop_back();
+	p.record.pop_back(); //去掉k的位置 考虑了是从叶子还是内部节点删除的不同
+ 	if (position==root&&p.value.size()==0){
+		// 处理当前节点变成一个废块，在需要新块时优先考虑这些
+ 		root=p.record[0]; //free the pre-root
+ 		cout<<"The new root is "<<root<<endl;
+ 		Node tmp=parseNode(root);
+ 		tmp.leaf=true;  //只有一层既是根也是
+ 		cout<<"preparent"<<tmp.parent<<endl;
+ 		tmp.parent=0;
+ 		tmp.suc=0;
+ 		tmp.pre=0;
+ 		cout<<"newparent"<<tmp.parent<<endl;
+ 		encodeNode(tmp);
+ 		return;
+ 	}
+ 	else if (p.value.size()<capacity/2){ //需要调整
+ 		if (p.pre!=0)
+ 			predessor=parseNode(p.pre);
+ 		else 
+ 			predessor.parent=-1;
+ 		if (p.suc!=0)
+ 			successor=parseNode(p.suc);
+ 		else
+ 			successor.parent=-1;
+ 		if (predessor.parent==p.parent)
+ 			successor=p;
+ 		else if (successor.parent==p.parent)
+ 			predessor=p;
+ 		else{
+ 			cout<<"肯定有哪里错了，不可能只有一个叶子节点"<<endl;
+ 			return ;
+ 		}
+ 		int t=0,temp;
+ 		parent=parseNode(p.parent);
+ 		while(parent.record[t]!=predessor.node_num&&t<parent.value.size())
+ 			t++;
+ 		k=parent.value[t]; //parent中处于分界位置的点
+ 		if (predessor.value.size()+successor.value.size()<capacity){ //这里需要把后面那块删掉加入废块链表
+ 			if (p.leaf)
+ 				for(i=0;i<successor.value.size();i++){
+ 					predessor.value.push_back(successor.value[i]);
+ 					predessor.record.push_back(successor.record[i]);
+ 				}
+ 			else if (!p.leaf){
+ 			//predessor->data[predessor->n]=k;
+ 				predessor.value.push_back(k);
+	 		//predessor->n++;
+ 			//cout<<predessor->n<<endl;
+ 				for(i=0;i<=successor.record.size();i++){
+ 					predessor.record.push_back(successor.record[i]);
+ 				}
+ 				for(i=0;i<successor.value.size();i++){
+ 					predessor.value.push_back(successor.value[i]);
+ 				}
+			}// destroy successor 加入废块链表
+			predessor.suc=successor.suc;
+			encodeNode(predessor);
+ 			delete_entry(k,predessor.parent,t);
+ 			if (predessor.value.size()==capacity){
+ 				Node np=Node();
+ 				cout<<"Split"<<endl;
+ 				mid=split_child(predessor,np);
+ 				insert_parent(mid,predessor.parent,predessor,np);
+ 				//insert_parent(temp,predessor->parent,predessor,np);
+ 			}
+			//delete_block(successor.node_num);
+		}
+		else{ //合并超出容量 ps是否只考虑前面那个多的情况？
+			if (predessor.node_num==p.node_num) //前面那个缺
+				if (!p.leaf){
+					//cout<<"It's here"<<endl;
+					//cout<<successor.value.front()<<endl;
+ 					predessor.value.push_back(k);
+ 					predessor.record.push_back(successor.record.front());
+ 					parent.value[t]=predessor.value.front();
+ 					for(i=0;i<successor.value.size();i++)
+ 						successor.value[i]=successor.value[i+1];
+ 					for(i=0;i<successor.record.size();i++)
+ 						successor.record[i]=successor.record[i+1];
+ 					//successor.value[0]=k;
+ 					//successor.record[0]=predessor.record.back();
+ 					successor.record.pop_back();
+ 					successor.value.pop_back();
+ 				}
+ 				else{ //r->leaf
+ 					predessor.value.push_back(successor.value.front());
+ 					predessor.record.push_back(successor.record.front());
+ 					for(i=0;i<successor.value.size();i++){
+ 						successor.value[i]=successor.value[i+1];
+ 						successor.record[i]=successor.record[i+1];
+ 					}
+ 					//successor.value[0]=predessor.value.back();
+ 					//successor.record[0]=predessor.record.back();
+ 					successor.value.pop_back();
+ 					successor.record.pop_back();
+ 					parent.value[t]=successor.value.front();
+ 				}
+			else if (successor.node_num==p.node_num){ //后面那个缺 
+ 				if (!p.leaf){
+ 					successor.value.push_back(0);
+ 					successor.record.push_back(0);
+ 					for(i=successor.value.size()-1;i>0;i--)
+ 						successor.value[i]=successor.value[i-1];
+ 					for(i=successor.record.size()-1;i>0;i--)
+ 						successor.record[i]=successor.record[i-1];
+ 					successor.value[0]=k;
+ 					successor.record[0]=predessor.record.back();
+ 					predessor.record.pop_back();
+ 					parent.value[t]=predessor.value.back();
+ 					predessor.value.pop_back();
+ 				}
+ 				else{ //r->leaf
+ 					successor.value.push_back(0);
+ 					successor.record.push_back(0);
+ 					for(i=successor.value.size();i>0;i--){
+ 						successor.value[i]=successor.value[i-1];
+ 						successor.record[i]=successor.record[i-1];
+ 					}
+ 					successor.value[0]=predessor.value.back();
+ 					successor.record[0]=predessor.record.back();
+ 					parent.value[t]=predessor.value.back();
+ 					predessor.value.pop_back();
+ 					predessor.record.pop_back();
+ 				}
+ 			}
+ 		encodeNode(predessor);
+		encodeNode(successor);
+		//encodeNode(parent);
+		}
+	} //above redistribution
+	else{
+		encodeNode(p);
+	}
+ // no need to change
+}
+void delete_one(string database,string table_name,struct index_info& inform,int block_num){
+	int position;
+	Node p; //当前正在操作的节点
+	blockInfo *b;
+	b = readBlock("D_1", "Balance","account" ,block_num, 1, run);
+	root=(b->cBlock[4]-'0')*100+(b->cBlock[5]-'0')*10+(b->cBlock[6]-'0');
+	position=search_one(database,table_name,inform,root);//找到删除节点的叶子块
+	cout<<"position:"<<position<<endl;
+	cout<<"inform.offset:"<<inform.offset<<endl;
+	delete_entry(inform.value,position,inform.offset);
+}
 int main(int argc, char const *argv[])
 {	
 	/*createDatabase("D_1");
@@ -341,9 +520,31 @@ int main(int argc, char const *argv[])
 	addAttr("D_1", "Balance", "accounsa", 0, 0, 0); 
  	createIndex("D_1", "Balance", "account", "index1");*/
 	struct index_info index1;
-	index1.value='g';
-	index1.offset=4;
+	index1.value='q';
+	index1.offset=54;
+	//delete_one("database","table1",index1,0);
+	//index1.offset=4;
+	//index1.value='h';
 	insert_one("database","table1",index1,0,index1.offset);
+	/*index1.value='k';
+	index1.offset=100;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='l';
+	index1.offset=102;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='m';
+	index1.offset=103;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='n';
+	index1.offset=104;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='o';
+	index1.offset=105;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='p';
+	index1.offset=106;
+	insert_one("database","table1",index1,0,index1.offset);*/
+	/*insert_one("database","table1",index1,0,index1.offset);
 	index1.value='a';
 	index1.offset=1;
 	insert_one("database","table1",index1,0,index1.offset);
@@ -361,8 +562,9 @@ int main(int argc, char const *argv[])
 	insert_one("database","table1",index1,0,index1.offset);
 	index1.value='i';
 	index1.offset=7;
-	insert_one("database","table1",index1,0,index1.offset);
+	insert_one("database","table1",index1,0,index1.offset);*/
 	//while(1)
 	//createIndex("database","table1","amount","index");
+	while(1);
 	return 0;
 }
