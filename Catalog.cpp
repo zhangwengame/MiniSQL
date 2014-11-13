@@ -138,6 +138,8 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 	fseek(fUpdate, 20 + (attrNo - 1) * 40 + 25, 0);
 	fprintf(fUpdate, "1");
 	fprintf(fUpdate, "%s", Index_Name.c_str());
+	if (Index_Name.length()<14)
+		fprintf(fUpdate, "%c", 0);
 	fclose(fUpdate);
 	/*--------------*/
 	string dpath = DB_Name + "//" + Table_Name + "//" + Table_Name + "_"+ Attr_Name+".1.dat";
@@ -148,7 +150,7 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 //Do not verify uniqueness of attrs
 void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, int Attr_Type, int Data_Type)
 {
-	if (Table_Name.length() > 20)
+	if (Attr_Name.length() > 14)
 	{
 		printf("ERROR: Attribute %s's name is too long !\n", Attr_Name);
 		return;
@@ -316,4 +318,52 @@ void dropDatabase(string DB_Name){
 		}
 	}
 	fclose(fUpdate);
+}
+attrInfo *getAttrInfo(string DB_Name, string Table_Name, string Attr_Name){
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fIn = fopen(path.c_str(), "r");
+	attrInfo *ret=new attrInfo;
+	int Attrcount;
+	char name[25],c;
+	fscanf(fIn, "%d", &Attrcount);
+	for (int i = 0; i < Attrcount; i++)
+	{
+		fseek(fIn, 20 + 40 * i, 0);
+		for (int j = 0; j < 20; j++)
+		{
+			name[j] = fgetc(fIn);
+			if (name[j] == 0)
+				break;
+		}
+		name[20] = 0;
+		if (string(name) == Attr_Name)
+		{
+			fseek(fIn, 20 + 40 * i+23, 0);
+			ret->attrName = Attr_Name;
+			c = fgetc(fIn);
+			ret->pri=c-'0';
+			c = fgetc(fIn);
+			ret->type = c - '0';
+			c = fgetc(fIn);
+			ret->index = c - '0';
+			if (ret->index == 1)
+			{
+				for (int j = 0; j < 14; j++)
+				{
+					name[j] = fgetc(fIn);
+					if (name[j] == 0)
+						break;
+				}
+				name[20] = 0;
+				ret->indexName = string(name);
+			}
+			else
+				ret->indexName = "";
+			fclose(fIn);
+			return ret;
+		}
+	}
+	fclose(fIn);
+	printf("ERROR: There is no such attr : %s\n", Attr_Name.c_str());
+	return NULL;
 }

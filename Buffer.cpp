@@ -95,29 +95,36 @@ blockInfo*	findBlock(bufferInfo* bufferInfo)
 	{
 		if (bufferInfo->blockCount >= MAX_BLOCK)
 		{
-			fileInfo *fite, *minFile=bufferInfo->fileHandle;
-			time_t minTime = 1<<31;
-			for (fite = bufferInfo->fileHandle; fite != NULL; fite = fite->next){
-				if (fite->lastBlock != NULL &&fite->lastBlock->iTime < minTime)
-				{
-					minFile = fite;
-					minTime = fite->lastBlock->iTime;
-				}
-			}
-			blockInfo *bite = minFile->firstBlock;
-			if (bite == minFile->lastBlock)
+			fileInfo *fite,*minFile;
+			blockInfo *bite,*minBlock=NULL;
+			time_t minTime = -1;
+			for (fite = bufferInfo->fileHandle; fite != NULL; fite = fite->next)
 			{
-				minFile->blockSet.erase(bite->blockNum);
-				minFile->firstBlock = minFile->lastBlock = NULL;
-				block = bite;
+				for (bite = fite->firstBlock; bite != NULL; bite = bite->next)
+					if ((bite->iTime < minTime || minTime == -1) && bite->lock == 0)
+					{
+						minBlock = bite;
+						minTime = bite->iTime;
+					}
+			}
+			if (minBlock == NULL) return NULL;
+			minFile = minBlock->file;			
+			if (minBlock == minFile->firstBlock)
+			{
+				minFile->blockSet.erase(minBlock->blockNum);
+				minFile->firstBlock = minBlock->next;
+				if (minBlock->next == NULL)
+					minFile->lastBlock = NULL;
+				block = minBlock;
 			}
 			else
 			{
-				for (; bite->next != minFile->lastBlock; bite = bite->next);
-				minFile->blockSet.erase(bite->next->blockNum);
-				minFile->lastBlock = bite;
-				block = bite->next;
-				bite->next = NULL;
+				for (bite = minFile->firstBlock; bite->next != minBlock; bite = bite->next);
+				minFile->blockSet.erase(minBlock->blockNum);
+				if (minBlock->next == NULL)
+					minFile->lastBlock = bite;
+				bite->next = minBlock->next;
+				block = minBlock;
 			}
 		}
 		else
@@ -131,13 +138,17 @@ blockInfo*	findBlock(bufferInfo* bufferInfo)
 blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
 	fileInfo *file=F;
 	blockInfo *block;
+	SYSTEMTIME  time;
+	GetSystemTime(&time);
 	block = findBlock(bufferInfo);
+	if (block == NULL) return NULL;
 	block->blockNum = blockNum;
 	block->dirtyBit = 0;
 	block->file = file;
-	block->iTime = time(NULL);
+	block->iTime = time.wMilliseconds;
 	block->lock = 0;
 	block->next = file->firstBlock;
+	block->lock = 0;
 	if (file->lastBlock == NULL)
 		file->lastBlock = block;
 	file->firstBlock = block;

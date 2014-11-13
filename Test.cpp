@@ -21,14 +21,27 @@
 	/* createTable("D_2", "Balance");
 	 addAttr("D_2", "Balance", "account", 8, 0, 1);
 	 addAttr("D_2", "Balance", "accounsa", 0, 0, 0);*/
-	 bufferInfo *run;
+	 /*bufferInfo *run;
 	 run = new bufferInfo;
 	 blockInfo *b;
-	 b = readBlock("D_1", "Balance","account" ,0, 1, run);
-	 printf("%s\n", b->cBlock);
+	 for (int i = 0; i < 50; i++)
+	 {
+		 b = readBlock("D_1", "Balance", "account", i, 1, run);
+		 if (i == 0 || i == 3 || i == 5)
+			 b->lock = 1;  
+		 printf("%d: %d\n", i,run->blockCount);
+	 }
+	 fileInfo *fite;
+	 for (fite = run->fileHandle; fite != NULL; fite = fite->next)
+		 for (b = fite->firstBlock; b != NULL; b = b->next)
+			 printf("%s %d\n", b->file->fileName.c_str(), b->blockNum);*/
+	 /*attrInfo *ret;
+	 ret = getAttrInfo("D_1", "Balance", "accsounsa");
+	 if (ret!=NULL) printf("%s %s %d %d %d\n", ret->attrName.c_str(), ret->indexName.c_str(), ret->pri, ret->type, ret->index);*/
+	 /*printf("%s\n", b->cBlock);
 	 strcpy(b->cBlock, "hahaha");
 	 b->dirtyBit = 1;
-	 writeBlock("D_1", b);
+	 writeBlock("D_1", b);*/
 	/* createDatabase("D_1");
 	 createTable("D_1", "Balance");
 	 addAttr("D_1", "Balance", "account", 8, 0, 1);
