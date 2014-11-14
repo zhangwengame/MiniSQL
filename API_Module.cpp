@@ -5,15 +5,16 @@ using namespace std;
 string DB_Name="D_1",Table_Name="Balance";
 conditionInfo Str_To_Conds(string str);
 attr_info print[32];
+int record_Num=0; 
 
 void API_Module(string SQL)
 {
 	string Type,Attr,Index_Name,Attr_Name,Condition,index_name[32],Cond_Info;
 	string attr_list[10];
 	char* asplit=".";
-	int index1,index2,end,length,offset,type,count,num,record_Num,Count,i;
-	int attr_num[10],ind,index;
-	//index_info nodes[32];
+	int index1,index2,end,length,offset,type,count,Count,i;
+	int attr_num[10],ind,index,num;
+	index_info nodes[32];
 	conditionInfo conds[10];
 	//attr_info print[32];
 	char cond,AO;
@@ -178,7 +179,7 @@ void API_Module(string SQL)
                       conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('|'));
                   } 
 			conds_str[num++]=Cond_Info;
-
+            
             for (i=0;i<num;i++){
                 conds[i]=Str_To_Conds(conds_str[i]);
 				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
@@ -189,7 +190,7 @@ void API_Module(string SQL)
 			else
 			{
 				if(Attr=="*"){
-                    Select_With_Where(DB_Name,Table_Name,conds,num,'a',print,0,1);
+                    Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,0,1);
                 }
 				else {
                     count=0;
@@ -202,11 +203,52 @@ void API_Module(string SQL)
                     attr_list[count++]=Attr;
                     for (i=0;i<count;i++)
                         print[i].num=attrOrder(DB_Name,Table_Name,attr_list[i]);
-					Select_With_Where(DB_Name,Table_Name,conds,2,AO,print,count,0);
+					Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,count,0);
 				}
 			}		
 		}
     }
+    
+    else if (Type=="30")
+         if (0==DB_Name.length())
+			cout<<"error: you have not specified the database to be used!"<<endl;
+		else{
+             index=SQL.find(',');
+             Table_Name=SQL.substr(0,index);
+             Attr=SQL.substr(index+1);
+             Insert_Item(DB_Name,Table_Name,Attr,record_Num);
+        }
+        
+    else if (Type=="40")
+        if (0==DB_Name.length())
+			cout<<"error: you have not specified the database to be used!"<<endl;
+		else{
+            index=SQL.find(',');
+            Table_Name=SQL.substr(0,index);
+            Cond_Info=SQL.substr(index+1);
+            num=0;
+			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1))
+                  if (Cond_Info.find('&')>0){
+                      AO='a';
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('&'));
+					  Cond_Info=Cond_Info.substr(Cond_Info.find('&')+1,Cond_Info.length()-Cond_Info.find('&')-1);
+                  }
+                  else if (Cond_Info.find('|')>0){
+                      AO='o';
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('|'));
+                  } 
+			conds_str[num++]=Cond_Info;
+			
+            for (i=0;i<num;i++){
+                conds[i]=Str_To_Conds(conds_str[i]);
+				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
+			}
+			if(Table_Name.find(' ')!=-1)
+				cout<<"error: can not select from more than one table!"<<endl;
+			else
+			    Delete_With_Where(DB_Name,Table_Name,conds,num,nodes,0,AO);		
+		}
+    else cout<<"error: invalid type of insruction!"<<endl;
 }
 
 conditionInfo Str_To_Conds(string str){
@@ -238,7 +280,11 @@ int main(){
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
     //API_Module("01Balance,ele1.ele2.ele3");
-	API_Module("21*,Balance,ele1>3&elem2>1");
+    //API_Module("30Balance,1,2,3");
+    //API_Module("30Balance,4,5,6");
+	//API_Module("21*,Balance,ele1>3&elem2>1");
+	API_Module("40Balance,ele1>3&elem2>1");
+	//API_Module("20*,Balance");
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
     while (1);

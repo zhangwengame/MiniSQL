@@ -1,8 +1,29 @@
 #include "Record.h"
+#include <iostream>
  
 void Close_Database(string DB_Name,bool closetype);
 void Close_File(string DB_Name,string filename,int filetype,bool closetype);
-void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num);
+void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num){
+    bufferInfo *run;
+    char content[128];
+    int start,i;
+    blockInfo *head;
+    
+	run= new bufferInfo;
+    head=readBlock(DB_Name,Table_Name,"",0,0,run);
+    if (head->cBlock!=NULL)
+       cout<<Attr<<endl;
+    start=128*record_Num;
+    strncpy(content,Attr.c_str(),Attr.length());
+    for (i=Attr.length();i<127;i++)
+        content[i]=' ';
+    content[127]=';';
+    strncpy(head->cBlock+start,content,128);
+    cout<<strlen(head->cBlock)<<endl;
+    record_Num++;
+    writeBlock(DB_Name,head);
+}
+     
 void Print_Head(attr_info print[32],int count){
     int i;
     //for (i=0;i<count;i++)
@@ -62,7 +83,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
     
     bufferInfo *run;
 	run= new bufferInfo;
-    head=readBlock(DB_Name,Table_Name,0,0,run);
+    head=readBlock(DB_Name,Table_Name,"",0,0,run); 
     for (bi=0;bi<1;bi++){
         line=strtok(head->cBlock,lsplit);
         li=0;
@@ -98,7 +119,6 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
 
 void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,attr_info print[32],int Count,int all){
     blockInfo *head,*ptr;
-    fileInfo *file;
     int need[10],i,j,bi,li,lnum;
     char *line,*detail[10],*elem,*line_c[100];
     char *lsplit=";",*esplit=",",*space=" "; 
@@ -107,7 +127,8 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
         need[i]=print[i].num;
     bufferInfo *run;
 	run= new bufferInfo;
-    head=readBlock(DB_Name,Table_Name,0,0,run);
+    head=readBlock(DB_Name,Table_Name,"",0,0,run);
+        cout<<head->cBlock<<endl;
     for (bi=0;bi<1;bi++){
         line=strtok(head->cBlock,lsplit);
         li=0;
@@ -129,7 +150,7 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                 i++;
                 elem=strtok(NULL,esplit);
             }
-            if (true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,2,'a')){ 
+            if (true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,count,cond)){ 
                 if (1==all)
                 for (i=1;detail[i+3]!=NULL;i++)
                     printf("%s\t",detail[i]);
@@ -142,7 +163,47 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
     } 
 }
 
-void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond);
+void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond){
+    bufferInfo *run;
+    blockInfo *head;
+    int i,j,bi,li,lnum;
+    char *line,*detail[10],*elem,*line_c[100],content[4096];
+    char *lsplit=";",*esplit=",",*space=" ";
+    
+	run= new bufferInfo;
+    head=readBlock(DB_Name,Table_Name,"",0,0,run);
+    for (bi=0;bi<1;bi++){
+        strcpy(content,head->cBlock);
+        line=strtok(content,lsplit);
+        li=0;
+        while (line!=NULL){
+              line_c[li]=line;
+              li++;
+              line=strtok(NULL,lsplit);
+        }
+        lnum=li;
+        for (li=0;li<lnum;li++){
+            line_c[li]=strtok(line_c[li],space);
+        }
+        
+        for (li=0;li<lnum;li++){
+            elem=strtok(line_c[li],esplit);
+            i=1;
+            while (elem!=NULL){
+                detail[i]=elem;
+                i++;
+                elem=strtok(NULL,esplit);
+            }
+			    
+            if (true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,2,'a')){
+                cout<<li<<endl; 
+                for (i=li*128;i<li*128+128;i++)
+                    head->cBlock[i]=' ';
+            }
+        }
+        writeBlock(DB_Name,head);
+    } 
+} 
 void Delete_Without_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond);
 void Delete_With_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,int index);
 void Delete_With_Equal_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,index_info Index);
