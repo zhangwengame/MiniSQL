@@ -23,3 +23,18 @@ where a<0 and b>0
 
 “20”：无where的select
 上文的格式中，去掉条件，别的一样
+
+-----------以下11.14更新------------
+“30”：insert指令
+表名开头，逗号后为插入的内容，用逗号分隔。注意字符串元素两端应当没有引号（否则引号视为字符串一部分）
+(e.g.)
+“Balance,1,'Gentle',100.00”
+表示 insert into Balance values(1,'Gentle',100.00)
+暂时没有想好要不要对类型进行核对
+
+“40”：带where的delete
+表名开头，where条件的表述方式与select一致
+(e.g.)
+“Balance,a<0&b>0”表示
+delete from Table
+where a<0 and b>0
