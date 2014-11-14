@@ -18,6 +18,10 @@
 	 printf("%d\n", existDatabase("D_2"));*/
 	// createDatabase("D_2");
 	// printf("%d\n", existDatabase("D_2"));
+	// createTable("D_1", "Balance4");
+	 printf("get %d\n", getRecordSum("D_1", "Balance4"));
+	 setRecordSum("D_1", "Balance4",123);
+	 printf("get %d\n", getRecordSum("D_1", "Balance4"));
 	/* createTable("D_2", "Balance");
 	 addAttr("D_2", "Balance", "account", 8, 0, 1);
 	 addAttr("D_2", "Balance", "accounsa", 0, 0, 0);*/

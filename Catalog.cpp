@@ -94,6 +94,10 @@ void createTable(string DB_Name, string Table_Name)
 	path = path + Table_Name + ".dat";	
 	FILE *fOut = fopen(path.c_str(), "w"),*fUpdate;
 	fprintf(fOut, "0");
+	fprintf(fOut, "%c", 0);
+	fseek(fOut, 10, 0);
+	fprintf(fOut, "0");
+	fprintf(fOut, "%c", 0);
 	fclose(fOut);
 	int TAcount;
 	path = "Catalog//" + DB_Name + "//TA_Name.dat";
@@ -366,4 +370,41 @@ attrInfo *getAttrInfo(string DB_Name, string Table_Name, string Attr_Name){
 	fclose(fIn);
 	printf("ERROR: There is no such attr : %s\n", Attr_Name.c_str());
 	return NULL;
+}
+
+int getRecordSum(string DB_Name, string Table_Name)
+{
+	if (!existTable(DB_Name, Table_Name))
+	{
+		printf("ERROR: There is no such Table %s:%s\n", DB_Name.c_str(), Table_Name.c_str());
+		return -1;
+	}
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fIn = fopen(path.c_str(), "r");
+	fseek(fIn, 10, 0);
+	int ret = 0;
+	char c;
+	for (int j = 0; j < 10; j++)
+	{
+		c = fgetc(fIn);
+		if ('0' <= c && c <= '9')
+			ret = (c - '0') + ret * 10;
+		else
+			break;
+	}
+	fclose(fIn);
+	return ret;
+}
+void setRecordSum(string DB_Name, string Table_Name, int val){
+	if (!existTable(DB_Name, Table_Name))
+	{
+		printf("ERROR: There is no such Table %s:%s\n", DB_Name.c_str(), Table_Name.c_str());
+		return;
+	}
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fUpdate = fopen(path.c_str(), "r+");
+	fseek(fUpdate, 10, 0);
+	fprintf(fUpdate, "%d", val);
+	fclose(fUpdate);
+	return;
 }

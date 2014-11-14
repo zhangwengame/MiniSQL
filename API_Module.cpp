@@ -5,15 +5,16 @@ using namespace std;
 string DB_Name="D_1",Table_Name="Balance";
 conditionInfo Str_To_Conds(string str);
 attr_info print[32];
+int record_Num=0; 
 
 void API_Module(string SQL)
 {
 	string Type,Attr,Index_Name,Attr_Name,Condition,index_name[32],Cond_Info;
 	string attr_list[10];
 	char* asplit=".";
-	int index1,index2,end,length,offset,type,count,num,record_Num,Count,i;
-	int attr_num[10],ind,index;
-	//index_info nodes[32];
+	int index1,index2,end,length,offset,type,count,Count,i;
+	int attr_num[10],ind,index,num,primary;
+	index_info nodes[32];
 	conditionInfo conds[10];
 	//attr_info print[32];
 	char cond,AO;
@@ -42,13 +43,29 @@ void API_Module(string SQL)
 			createTable(DB_Name,Table_Name);
 			index=Attr.find('.');
 			while (index>0){
-                  addAttr(DB_Name,Table_Name,Attr.substr(0,index),8,0,0);
-                  Attr=Attr.substr(index+1);
-                  index=Attr.find('.');
+                if (Attr[0]=='!'){
+                    primary=1;
+                    Attr=Attr.substr(1);
+                }
+                else primary=0;
+                
+                switch (Attr[index]){
+                    case 'i':
+                        addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,0);
+                        break;
+                    case 'c':
+                        addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,1);
+                        break;
+                    case 'f':
+                        addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,2);
+                        break;
+                } 
+                Attr=Attr.substr(index+1);
+                index=Attr.find('.');
             }
             if (Attr.length()>0) addAttr(DB_Name,Table_Name,Attr,8,0,0);
 			//判断是否创建主键索引
-			/*if(!Attr_Name.IsEmpty())
+			/*if(!Attr_Name.IsEmpty()) 
 				Create_Index(Table_Name,Table_Name,Attr_Name,DB_Name,length,offset,type);*/
 		}		
 	}
@@ -178,7 +195,7 @@ void API_Module(string SQL)
                       conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('|'));
                   } 
 			conds_str[num++]=Cond_Info;
-
+            
             for (i=0;i<num;i++){
                 conds[i]=Str_To_Conds(conds_str[i]);
 				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
@@ -189,7 +206,7 @@ void API_Module(string SQL)
 			else
 			{
 				if(Attr=="*"){
-                    Select_With_Where(DB_Name,Table_Name,conds,num,'a',print,0,1);
+                    Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,0,1);
                 }
 				else {
                     count=0;
@@ -202,33 +219,77 @@ void API_Module(string SQL)
                     attr_list[count++]=Attr;
                     for (i=0;i<count;i++)
                         print[i].num=attrOrder(DB_Name,Table_Name,attr_list[i]);
-					Select_With_Where(DB_Name,Table_Name,conds,2,AO,print,count,0);
+					Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,count,0);
 				}
 			}		
 		}
     }
+    
+    else if (Type=="30")
+         if (0==DB_Name.length())
+			cout<<"error: you have not specified the database to be used!"<<endl;
+		else{
+             index=SQL.find(',');
+             Table_Name=SQL.substr(0,index);
+             Attr=SQL.substr(index+1);
+             Insert_Item(DB_Name,Table_Name,Attr,record_Num);
+        }
+        
+    else if (Type=="40")
+        if (0==DB_Name.length())
+			cout<<"error: you have not specified the database to be used!"<<endl;
+		else{
+            index=SQL.find(',');
+            Table_Name=SQL.substr(0,index);
+            Cond_Info=SQL.substr(index+1);
+            num=0;
+			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1))
+                  if (Cond_Info.find('&')>0){
+                      AO='a';
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('&'));
+					  Cond_Info=Cond_Info.substr(Cond_Info.find('&')+1,Cond_Info.length()-Cond_Info.find('&')-1);
+                  }
+                  else if (Cond_Info.find('|')>0){
+                      AO='o';
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('|'));
+                  } 
+			conds_str[num++]=Cond_Info;
+			
+            for (i=0;i<num;i++){
+                conds[i]=Str_To_Conds(conds_str[i]);
+				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
+			}
+			if(Table_Name.find(' ')!=-1)
+				cout<<"error: can not select from more than one table!"<<endl;
+			else
+			    Delete_With_Where(DB_Name,Table_Name,conds,num,nodes,0,AO);		
+		}
+    else cout<<"error: invalid type of insruction!"<<endl;
 }
 
 conditionInfo Str_To_Conds(string str){
     conditionInfo conds;
     int index=-1;
+    conds.symbol=0;
     index=str.find('<');
     if (index>0){
         conds.left=str.substr(0,index);
-        conds.symbol=-1;
-        conds.right=(int)str[index+1]-48;
-    }
-    index=str.find('=');
-    if (index>0){
-        conds.left=str.substr(0,index);
-        conds.symbol=0;
-        conds.right=(int)str[index+1]-48;
+        conds.right=atoi((str.substr(index+1)).c_str());
+        if (str[index+1]=='=')
+            conds.symbol=-1;
+        else if (str[index+1]=='>')
+            conds.symbol=3;
+        else
+            conds.symbol=-2;
     }
     index=str.find('>');
     if (index>0){
         conds.left=str.substr(0,index);
-        conds.symbol=1;
-        conds.right=(int)str[index+1]-48;
+        conds.right=atoi((str.substr(index+1)).c_str());
+        if (str[index+1]=='=')
+            conds.symbol=1;
+        else 
+            conds.symbol=2;
     }
     return conds;
 }
@@ -238,7 +299,11 @@ int main(){
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
     //API_Module("01Balance,ele1.ele2.ele3");
-	API_Module("21*,Balance,ele1>3&elem2>1");
+    //API_Module("30Balance,11,22,33");
+    //API_Module("30Balance,14,15,16");
+	API_Module("21*,Balance,ele1<13&elem2>32");
+	//API_Module("40Balance,ele1>0&elem2>0");
+	//API_Module("20*,Balance");
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
     while (1);
