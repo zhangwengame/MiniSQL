@@ -58,13 +58,22 @@ bool Confirm(string DB_Name,string Table_Name,char *detail[10],conditionInfo con
      attr=attrOrder(DB_Name,Table_Name,condition.left);   
      if (attr>0)
      switch (condition.symbol){
-         case -1: if (detail[attr][0]-48>=condition.right)
+         case -2: if (atoi(detail[attr])>=condition.right)
                      return false;
                   break;
-         case 0:  if (detail[attr][0]-48!=condition.right)
+         case -1: if (atoi(detail[attr])>condition.right)
                      return false;
                   break;
-         case 1:  if (detail[attr][0]-48<=condition.right)
+         case 0:  if (atoi(detail[attr])!=condition.right)
+                     return false;
+                  break;
+         case 1:  if (atoi(detail[attr])<condition.right)
+                     return false;
+                  break;
+         case 2:  if (atoi(detail[attr])<=condition.right)
+                     return false;
+                  break;
+         case 3:  if (atoi(detail[attr])==condition.right)
                      return false;
                   break;
      }
@@ -127,8 +136,6 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
         need[i]=print[i].num;
     bufferInfo *run;
 	run= new bufferInfo;
-    head=readBlock(DB_Name,Table_Name,"",0,0,run);
-        cout<<head->cBlock<<endl;
     for (bi=0;bi<1;bi++){
         line=strtok(head->cBlock,lsplit);
         li=0;
@@ -157,7 +164,6 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                 else
                 for (i=0;i<Count;i++)
                     printf("%s\t",detail[need[i]]);
-                printf("345\n");
             }
         }
     } 
@@ -195,7 +201,7 @@ void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                 elem=strtok(NULL,esplit);
             }
 			    
-            if (true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,2,'a')){
+            if (true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,count,'a')){
                 cout<<li<<endl; 
                 for (i=li*128;i<li*128+128;i++)
                     head->cBlock[i]=' ';

@@ -13,7 +13,7 @@ void API_Module(string SQL)
 	string attr_list[10];
 	char* asplit=".";
 	int index1,index2,end,length,offset,type,count,Count,i;
-	int attr_num[10],ind,index,num;
+	int attr_num[10],ind,index,num,primary;
 	index_info nodes[32];
 	conditionInfo conds[10];
 	//attr_info print[32];
@@ -43,13 +43,29 @@ void API_Module(string SQL)
 			createTable(DB_Name,Table_Name);
 			index=Attr.find('.');
 			while (index>0){
-                  addAttr(DB_Name,Table_Name,Attr.substr(0,index),8,0,0);
-                  Attr=Attr.substr(index+1);
-                  index=Attr.find('.');
+                if (Attr[0]=='!'){
+                    primary=1;
+                    Attr=Attr.substr(1);
+                }
+                else primary=0;
+                
+                switch (Attr[index]){
+                    case 'i':
+                        addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,0);
+                        break;
+                    case 'c':
+                        addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,1);
+                        break;
+                    case 'f':
+                        addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,2);
+                        break;
+                } 
+                Attr=Attr.substr(index+1);
+                index=Attr.find('.');
             }
             if (Attr.length()>0) addAttr(DB_Name,Table_Name,Attr,8,0,0);
 			//判断是否创建主键索引
-			/*if(!Attr_Name.IsEmpty())
+			/*if(!Attr_Name.IsEmpty()) 
 				Create_Index(Table_Name,Table_Name,Attr_Name,DB_Name,length,offset,type);*/
 		}		
 	}
@@ -254,23 +270,26 @@ void API_Module(string SQL)
 conditionInfo Str_To_Conds(string str){
     conditionInfo conds;
     int index=-1;
+    conds.symbol=0;
     index=str.find('<');
     if (index>0){
         conds.left=str.substr(0,index);
-        conds.symbol=-1;
-        conds.right=(int)str[index+1]-48;
-    }
-    index=str.find('=');
-    if (index>0){
-        conds.left=str.substr(0,index);
-        conds.symbol=0;
-        conds.right=(int)str[index+1]-48;
+        conds.right=atoi((str.substr(index+1)).c_str());
+        if (str[index+1]=='=')
+            conds.symbol=-1;
+        else if (str[index+1]=='>')
+            conds.symbol=3;
+        else
+            conds.symbol=-2;
     }
     index=str.find('>');
     if (index>0){
         conds.left=str.substr(0,index);
-        conds.symbol=1;
-        conds.right=(int)str[index+1]-48;
+        conds.right=atoi((str.substr(index+1)).c_str());
+        if (str[index+1]=='=')
+            conds.symbol=1;
+        else 
+            conds.symbol=2;
     }
     return conds;
 }
@@ -280,10 +299,10 @@ int main(){
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
     //API_Module("01Balance,ele1.ele2.ele3");
-    //API_Module("30Balance,1,2,3");
-    //API_Module("30Balance,4,5,6");
-	//API_Module("21*,Balance,ele1>3&elem2>1");
-	API_Module("40Balance,ele1>3&elem2>1");
+    //API_Module("30Balance,11,22,33");
+    //API_Module("30Balance,14,15,16");
+	API_Module("21*,Balance,ele1<13&elem2>32");
+	//API_Module("40Balance,ele1>0&elem2>0");
 	//API_Module("20*,Balance");
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
