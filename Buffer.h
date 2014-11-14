@@ -42,9 +42,9 @@ struct fileInfo  {
 	string fileName;		// the name of the file
 	string dataBase;       // dataBase it belongs to
 	string attrName;
-	int recordAmount;		// the number of record in the file
+//	int recordAmount;		// the number of record in the file
 //	int freeNum;			// the free block number which could be used for the file
-	int recordLength;		// the length of the record in the file
+//	int recordLength;		// the length of the record in the file
 	fileInfo *next;			// the pointer points to the next file
 	blockInfo *firstBlock;	// point to the first block within the file
 	blockInfo *lastBlock;

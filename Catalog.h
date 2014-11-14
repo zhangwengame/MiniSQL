@@ -22,5 +22,7 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 void dropIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name);
 void dropTable(string DB_Name, string Table_Name);
 void dropDatabase(string DB_Name);
+int getRecordSum(string DB_Name, string Table_Name);
+void setRecordSum(string DB_Name, string Table_Name,int val);
 attrInfo *getAttrInfo(string DB_Name, string Table_Name, string Attr_Name);
 #endif
