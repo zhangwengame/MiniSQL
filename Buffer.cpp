@@ -17,7 +17,7 @@ fileInfo* existFile(string DB_Name, string fileName, string attrName,int fileTyp
 	return NULL;
 }
 void writeBlock(string DB_Name, blockInfo *block){
-	string path = DB_Name + "//" + block->file->fileName + "//" + block->file->fileName;
+	string path = "Data//" + DB_Name + "//" + block->file->fileName + "//" + block->file->fileName;
 	if (block->file->type == 0)
 		path = path + ".0.dat";
 	else
@@ -65,7 +65,7 @@ fileInfo* getfile(string DB_Name, string fileName, string attrName, int fileType
 	ret = new fileInfo(DB_Name,fileName,fileType);
 	std::ifstream fin;
 	string path;
-	path = DB_Name + "//" + fileName;
+	path = "Data//" + DB_Name + "//" + fileName;
 	if (fileType == 0)
 		path = path + ".0.dat";
 	else
@@ -154,7 +154,7 @@ blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
 	file->firstBlock = block;
 	file->blockSet.insert(blockNum);
 	std::ifstream fin;
-	string path = file->dataBase + "//" + file->fileName + "//" + file->fileName;
+	string path = "Data//" + file->dataBase + "//" + file->fileName + "//" + file->fileName;
 	if (file->type == 0)
 		path += ".0.dat";
 	else

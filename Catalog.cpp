@@ -77,7 +77,9 @@ void createDatabase(string DB_Name){
 	fUpdate = fopen(dpath.c_str(), "w");
 	fprintf(fUpdate, "0");
 	fclose(fUpdate);
-	dpath = DB_Name + "//";
+	dpath = "Data//";
+	CreateDirectory(dpath.c_str(), NULL);
+	dpath = dpath + DB_Name + "//";
 	CreateDirectory(dpath.c_str(), NULL);
 	return;
 }
@@ -88,7 +90,7 @@ void createTable(string DB_Name, string Table_Name)
 		printf("ERROR: There is already such a table!\n");
 		return;
 	}
-	string dpath = DB_Name + "//" + Table_Name + "//";
+	string dpath = "Data//"+DB_Name + "//" + Table_Name + "//";
 	string path = "Catalog//" + DB_Name+"//";	
 	CreateDirectory(path.c_str(), NULL);
 	path = path + Table_Name + ".dat";	
@@ -146,7 +148,7 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 		fprintf(fUpdate, "%c", 0);
 	fclose(fUpdate);
 	/*--------------*/
-	string dpath = DB_Name + "//" + Table_Name + "//" + Table_Name + "_"+ Attr_Name+".1.dat";
+	string dpath = "Data//"+DB_Name + "//" + Table_Name + "//" + Table_Name + "_"+ Attr_Name+".1.dat";
 	FILE *fOut = fopen(dpath.c_str(), "w");
 	fprintf(fOut, "001#001");
 	fclose(fOut);
@@ -210,7 +212,7 @@ void dropIndex(string DB_Name, string Table_Name, string Attr_Name, string Index
 	for (int i = 0; i < 14; i++)
 		fprintf(fUpdate, "%c", 0);
 	fclose(fUpdate);
-	string dpath = DB_Name + "//" + Table_Name + "//" + Table_Name + "_" + Attr_Name + ".1.dat";
+	string dpath = "Data//"+DB_Name + "//" + Table_Name + "//" + Table_Name + "_" + Attr_Name + ".1.dat";
 	DeleteFile(dpath.c_str());
 }
 void dropTable(string DB_Name, string Table_Name){
@@ -239,13 +241,13 @@ void dropTable(string DB_Name, string Table_Name){
 					break;
 			}
 			name[20] = 0;
-			indexPath = DB_Name + "//" + Table_Name + "//" + Table_Name+"_"+string(name)+".1.dat";
+			indexPath = "Data//" + DB_Name + "//" + Table_Name + "//" + Table_Name + "_" + string(name) + ".1.dat";
 			DeleteFile(indexPath.c_str());
 		}
 	}
-	recordPath = DB_Name + "//" + Table_Name + "//" + Table_Name + ".0.dat";
+	recordPath = "Data//" + DB_Name + "//" + Table_Name + "//" + Table_Name + ".0.dat";
 	DeleteFile(recordPath.c_str());
-	tablePath = DB_Name + "//" + Table_Name + "//";
+	tablePath = "Data//" + DB_Name + "//" + Table_Name + "//";
 	RemoveDirectory(tablePath.c_str());
 	fclose(fUpdate);
 	tableNamePath = "Catalog//" + DB_Name + "//TA_Name.dat";
@@ -297,7 +299,7 @@ void dropDatabase(string DB_Name){
 	DeleteFile(tableNamePath.c_str());
 	databaseCatalog = "Catalog//" + DB_Name + "//";
 	RemoveDirectory(databaseCatalog.c_str());
-	databaseData = DB_Name + "//";
+	databaseData = "Data//" + DB_Name + "//";
 	RemoveDirectory(databaseData.c_str());
 	databaseNamePath = "Catalog//DB_Name.dat";
 	int DBcount;
