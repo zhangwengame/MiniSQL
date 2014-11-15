@@ -33,10 +33,10 @@ def interpreter():
         s=raw_input()
         sql+=" "
         sql+=s
-    print sql
+   # print sql
     if "select" in sql:
         sql=select_clause(sql)
-    print sql
+   #print sql
     return sql
 
-interpreter()
+#interpreter()
