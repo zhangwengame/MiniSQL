@@ -47,6 +47,10 @@
 	 strcpy(b->cBlock, "hahaha");
 	 b->dirtyBit = 1;
 	 writeBlock("D_1", b);*/
+	// createIndex("D_1", "Balance", "account", "index1"); 
+	// dropIndex("D_1", "Balance", "index2");
+	// dropIndex("D_1", "Balance", "index1");
+	 dropDatabase("D_1");
 	/* createDatabase("D_1");*/
 	/* createTable("D_1", "Balance");
 	 addAttr("D_1", "Balance", "account", 8, 0, 1);
@@ -57,12 +61,12 @@
 	 printf("%d\n", attrOrder("D_1", "Balance", "aaaaabbbbbcccccddddd"));*/
 	 /*createDatabase("D_1");*/
 	
-	 createTable("D_1", "Balance");
+	 /*createTable("D_1", "Balance");
      createTable("D_1", "Balance1");
 	 createTable("D_1", "Balance2");
 	 addAttr("D_1", "Balance", "account", 8, 0, 1);
 	 addAttr("D_1", "Balance", "accounsa", 0, 0, 0); 
-     createIndex("D_1", "Balance", "account", "index1");
+     createIndex("D_1", "Balance", "account", "index1");*/
 	 /*string dpath = "D_1//";
 	 CreateDirectory(dpath.c_str(), NULL);*/
 	/* createTable("D_1", "Balance");

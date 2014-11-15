@@ -19,6 +19,7 @@ int main()
  //cout<<"ok"<<endl;
  Py_Finalize();
  cout<<pBuffer<<endl;
+ while (1);
  return 0;
 }
 
