@@ -28,15 +28,15 @@ def interpreter():
     sql=""
     sql=raw_input(">>")
     while True:
-        s=raw_input()
-        if '$' in s:    #$为结束字符
+        if '$' in sql:    #$为结束字符
             break
+        s=raw_input()
         sql+=" "
         sql+=s
-    #print sql
+    print sql
     if "select" in sql:
         sql=select_clause(sql)
-    #print sql
+    print sql
     return sql
 
-#interpreter()
+interpreter()
