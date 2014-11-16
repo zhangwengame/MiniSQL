@@ -1,12 +1,12 @@
 #include "MiniSQL.h"
 #include "Interpreter.h"
 #include "API_Module.h"
-
+#include "Buffer.h"
 
 void main()
 {
 	string SQL;
-	//打印软件信息
+	bufferInfo *run=new bufferInfo;
 	cout<<endl;
 	cout<<"\t\t***********************************************"<<endl;
 	cout<<"\t\t             欢迎使用 MiniSQL !"<<endl;

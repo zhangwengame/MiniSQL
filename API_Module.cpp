@@ -321,7 +321,7 @@ conditionInfo Str_To_Conds(string str){
     return conds;
 }
 
-int main(){
+/*int main(){
     //addAttr("D_1", "Balance", "ele1", 8, 0, 1);
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
@@ -334,5 +334,5 @@ int main(){
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
     while (1);
-} 
+} */
 

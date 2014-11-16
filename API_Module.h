@@ -12,6 +12,7 @@
 //#include "MiniSQL.h"
 #include "Record.h"
 #include <iostream>
+#include <string>
 using namespace std;
 
 void  API_Module(string SQL);

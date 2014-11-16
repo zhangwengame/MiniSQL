@@ -1,5 +1,5 @@
 #include "Record.h"
-#include <iostream>
+
  
 //void Close_Database(string DB_Name,bool closetype);
 //void Close_File(string DB_Name,string filename,int filetype,bool closetype);
@@ -136,6 +136,7 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
         need[i]=print[i].num;
     bufferInfo *run;
 	run= new bufferInfo;
+	head = readBlock(DB_Name, Table_Name, "", 0, 0, run);
     for (bi=0;bi<1;bi++){
         line=strtok(head->cBlock,lsplit);
         li=0;
