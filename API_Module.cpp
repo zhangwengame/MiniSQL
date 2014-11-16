@@ -1,6 +1,5 @@
 #include "API_Module.h"
-#include <iostream>
-using namespace std;
+
 
 string DB_Name="D_1",Table_Name="Balance";
 conditionInfo Str_To_Conds(string str);
