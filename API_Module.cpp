@@ -6,6 +6,7 @@ int record_Num=0;
 
 void API_Module(string SQL, bufferInfo* bufferInfo)
 {
+	cout << "API"<<SQL << endl;
 	string Type,Attr,Index_Name,Attr_Name,Condition,index_name[32],Cond_Info;
 	string attr_list[10];
 	char* asplit=".";
@@ -380,7 +381,7 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
     return conds;
 }
 
-int main(){
+/*int main(){
     bufferInfo *run;
     run=new bufferInfo;
     //addAttr("D_1", "Balance", "ele1", 8, 0, 1);
@@ -395,6 +396,6 @@ int main(){
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
 	while (1);
-}
+}*/
 
 
