@@ -18,7 +18,7 @@ void encodeNode(const Node& p){ //写入该块
 	block_num=p.node_num;
 	blockInfo* b;
 	b = readBlock("D_1", "Balance","account" ,block_num, 1, run);
-	if (p.value.size()==0){
+	if (p.value.size()==0&&root==p.node_num){
 		strcpy(b->cBlock,"!0000000000000");
 		b->dirtyBit=1;
 		writeBlock("D_1",b);
@@ -212,6 +212,7 @@ void insert_parent(char a,int p,Node& lchild,Node& rchild){
 	int temp,j;
 	Node tmp;
 	char mid;
+	Node change;
 	blockInfo *b;
 	if (p==0){ //向上合并的是root
 		b=readBlock("D_1", "Balance","account" ,0, 1, run);
@@ -241,6 +242,9 @@ void insert_parent(char a,int p,Node& lchild,Node& rchild){
 		rchild.parent=p;
  //p->data[0]=a;
 		tmp.value.push_back(a);
+		encodeNode(lchild);
+ 		encodeNode(rchild); 	
+ 		encodeNode(tmp);
  //p->n++;
  	}
  	else{
@@ -263,19 +267,25 @@ void insert_parent(char a,int p,Node& lchild,Node& rchild){
  		rchild.parent=p;
  //p->n++;
  //if (p->n==capacity){
+ 		encodeNode(lchild);
+ 		encodeNode(rchild);
+ 		encodeNode(tmp);
  		if (tmp.value.size()==capacity){
  			Node np=Node();
  			cout<<"Parent Split"<<endl;
  			mid=split_child(tmp,np);
  			insert_parent(mid,tmp.parent,tmp,np);
+ 			for (j=0;j<np.record.size();j++){
+ 				change=parseNode(np.record[j]);
+ 				change.parent=np.node_num;
+ 				encodeNode(change);
+ 			}
  //np=init();
  //temp=split_child(p,np);
  //insert_parent(temp,p->parent,p,np);
  		}
  	}
- 	encodeNode(lchild);
- 	encodeNode(rchild);
- 	encodeNode(tmp);
+ 	
 }
 void insert_one(string database,string table_name,struct index_info& inform,int block_num,int line_num){
 	int position;
@@ -321,6 +331,7 @@ void insert_one(string database,string table_name,struct index_info& inform,int 
 		//cout<<"tmpvalue1"<<tmp.value[1]<<endl;
 		tmp.value[i]=inform.value;
 		tmp.record[i]=line_num; //这个地方没理解行号应该怎么编？ 应该是在record中拿的
+		encodeNode(tmp);
 		if (tmp.value.size()>=capacity){
 			Node np=Node();
 			cout<<"Split"<<endl;
@@ -328,7 +339,6 @@ void insert_one(string database,string table_name,struct index_info& inform,int 
 			insert_parent(mid,tmp.parent,tmp,np);
 		}
 	}
-	encodeNode(tmp);
     //cout<<tmp.leaf<<endl;
 	for(int i=0;i<tmp.value.size();i++)
 		cout<<tmp.record[i]<<tmp.value[i]<<endl;
@@ -348,7 +358,7 @@ void delete_entry(char k,int position,int offset){
 	/*b = readBlock("D_1", "Balance","account" ,block_num, 1, run);
 	root=(b->cBlock[4]-'0')*100+(b->cBlock[5]-'0')*10+(b->cBlock[6]-'0');
 	position=search_one(database,table_name,inform,root);//找到删除节点的叶子块*/
-	Node predessor,successor,parent;
+	Node predessor,successor,parent,change;
 	i=offset;
 	p=parseNode(position);
  	for(int j=i;j<p.value.size();j++){
@@ -369,8 +379,13 @@ void delete_entry(char k,int position,int offset){
 		// 处理当前节点变成一个废块，在需要新块时优先考虑这些
  		root=p.record[0]; //free the pre-root
  		cout<<"The new root is "<<root<<endl;
+ 		b=readBlock("D_1", "Balance","account" ,0, 1, run);
+ 		int new_block=(b->cBlock[0]-'0')*100+(b->cBlock[1]-'0')*10+(b->cBlock[2]-'0');
+ 		sprintf(b->cBlock,"%03d%c%03d",new_block,'#',root);
+ 		b->dirtyBit=1;
+ 		writeBlock("D_1",b);
  		Node tmp=parseNode(root);
- 		tmp.leaf=true;  //只有一层既是根也是
+ 		tmp.leaf=false;  //只有一层既是根也是
  		cout<<"preparent"<<tmp.parent<<endl;
  		tmp.parent=0;
  		tmp.suc=0;
@@ -378,6 +393,9 @@ void delete_entry(char k,int position,int offset){
  		cout<<"newparent"<<tmp.parent<<endl;
  		encodeNode(tmp);
  		return;
+ 	}
+ 	else if (position==root&&p.value.size()==1){
+ 		encodeNode(p);
  	}
  	else if (p.value.size()<capacity/2){ //需要调整
  		if (p.pre!=0)
@@ -412,14 +430,24 @@ void delete_entry(char k,int position,int offset){
  				predessor.value.push_back(k);
 	 		//predessor->n++;
  			//cout<<predessor->n<<endl;
- 				for(i=0;i<=successor.record.size();i++){
+ 				for(i=0;i<successor.record.size();i++){
  					predessor.record.push_back(successor.record[i]);
+ 					//if (predessor.record.back()==0)
+ 					//	cout<<"there is an error"<<endl;
+ 					change=parseNode(predessor.record.back());
+ 					change.parent=predessor.node_num;
+ 					encodeNode(change);
  				}
  				for(i=0;i<successor.value.size();i++){
  					predessor.value.push_back(successor.value[i]);
  				}
 			}// destroy successor 加入废块链表
 			predessor.suc=successor.suc;
+			if (successor.suc!=0){
+				Node next=parseNode(successor.suc);
+				next.pre=predessor.node_num;
+				encodeNode(next); //合并的这种情况要考虑下一个块的pre
+			}
 			encodeNode(predessor);
  			delete_entry(k,predessor.parent,t);
  			if (predessor.value.size()==capacity){
@@ -438,6 +466,9 @@ void delete_entry(char k,int position,int offset){
 					//cout<<successor.value.front()<<endl;
  					predessor.value.push_back(k);
  					predessor.record.push_back(successor.record.front());
+ 					change=parseNode(predessor.record.back());
+ 					change.parent=predessor.node_num;
+ 					encodeNode(change);
  					parent.value[t]=predessor.value.front();
  					for(i=0;i<successor.value.size();i++)
  						successor.value[i]=successor.value[i+1];
@@ -471,6 +502,9 @@ void delete_entry(char k,int position,int offset){
  						successor.record[i]=successor.record[i-1];
  					successor.value[0]=k;
  					successor.record[0]=predessor.record.back();
+ 					change=parseNode(successor.record.front());
+ 					change.parent=successor.node_num;
+ 					encodeNode(change);
  					predessor.record.pop_back();
  					parent.value[t]=predessor.value.back();
  					predessor.value.pop_back();
@@ -520,51 +554,53 @@ int main(int argc, char const *argv[])
 	addAttr("D_1", "Balance", "accounsa", 0, 0, 0); 
  	createIndex("D_1", "Balance", "account", "index1");*/
 	struct index_info index1;
-	index1.value='q';
-	index1.offset=54;
-	//delete_one("database","table1",index1,0);
-	//index1.offset=4;
-	//index1.value='h';
-	insert_one("database","table1",index1,0,index1.offset);
-	/*index1.value='k';
-	index1.offset=100;
-	insert_one("database","table1",index1,0,index1.offset);
-	index1.value='l';
-	index1.offset=102;
-	insert_one("database","table1",index1,0,index1.offset);
-	index1.value='m';
-	index1.offset=103;
-	insert_one("database","table1",index1,0,index1.offset);
-	index1.value='n';
-	index1.offset=104;
-	insert_one("database","table1",index1,0,index1.offset);
-	index1.value='o';
-	index1.offset=105;
-	insert_one("database","table1",index1,0,index1.offset);
-	index1.value='p';
-	index1.offset=106;
-	insert_one("database","table1",index1,0,index1.offset);*/
-	/*insert_one("database","table1",index1,0,index1.offset);
-	index1.value='a';
+	/*index1.value='a';
 	index1.offset=1;
 	insert_one("database","table1",index1,0,index1.offset);
-	index1.value='b';
+	index1.value='d';
 	index1.offset=2;
 	insert_one("database","table1",index1,0,index1.offset);
-	index1.value='d';
+	index1.value='e';
 	index1.offset=3;
 	insert_one("database","table1",index1,0,index1.offset);
 	index1.value='h';
-	index1.offset=5;
-	insert_one("database","table1",index1,0,index1.offset);
-	index1.value='e';
-	index1.offset=6;
+	index1.offset=4;
 	insert_one("database","table1",index1,0,index1.offset);
 	index1.value='i';
+	index1.offset=5;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='j';
+	index1.offset=6;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='k';
 	index1.offset=7;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='l';
+	index1.offset=8;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='m';
+	index1.offset=9;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='n';
+	index1.offset=10;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='o';
+	index1.offset=11;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='p';
+	index1.offset=12;
+	insert_one("database","table1",index1,0,index1.offset);
+	index1.value='q';
+	index1.offset=13;
 	insert_one("database","table1",index1,0,index1.offset);*/
+	index1.value='m';
+	delete_one("database","table1",index1,0);
+	while(1);
+	//index1.offset=4;
+	//index1.value='h';
+	//insert_one("database","table1",index1,0,index1.offset);
 	//while(1)
 	//createIndex("database","table1","amount","index");
-	while(1);
+	//while(1);
 	return 0;
 }
