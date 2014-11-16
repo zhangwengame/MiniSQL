@@ -53,6 +53,12 @@ bool Confirm_To_Where(string DB_Name,string Table_Name,char *detail[10],conditio
                  if (false==Confirmf(DB_Name,Table_Name,detail,conds[i]))
                     return false;
                  break;
+             default:
+                 if (conds[i].type<0)
+                    conds[i].right0=atoi(detail[-conds[i].type]);
+                 if (false==Confirmi(DB_Name,Table_Name,detail,conds[i]))
+                    return false;
+                 break;
          }
          return true;
 	 }
@@ -69,6 +75,12 @@ bool Confirm_To_Where(string DB_Name,string Table_Name,char *detail[10],conditio
                  break;
              case 2:
                  if (true==Confirmf(DB_Name,Table_Name,detail,conds[i]))
+                    return true;
+                 break;
+             default:
+                 if (conds[i].type<0)
+                    conds[i].right0=atoi(detail[-conds[i].type]);
+                 if (true==Confirmi(DB_Name,Table_Name,detail,conds[i]))
                     return true;
                  break;
          }
@@ -163,7 +175,7 @@ bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
 void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all,bufferInfo* bufferInfo){
     blockInfo *head,*ptr;
     fileInfo *file;
-    int need[10],i,j,bi,li,lnum;
+    int need[10],i,j,bi,li,lnum,en;
     char *line,*detail[10],*elem,*line_c[100];
     char *lsplit=";",*esplit=",",*space=" ";
     
@@ -179,7 +191,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
               li++;
               line=strtok(NULL,lsplit);
         }
-        lnum=li-1;
+        lnum=li;
         for (li=0;li<lnum;li++){
             line_c[li]=strtok(line_c[li],space);
         }
@@ -192,9 +204,9 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
                 i++;
                 elem=strtok(NULL,esplit);
             }
-            
+            en=i-1;
             if (1==all)
-                for (i=1;detail[i+2]!=NULL;i++)
+                for (i=1;i<=en;i++)
                     printf("%s\t",detail[i]);
             else
                 for (i=0;i<count;i++)
@@ -207,7 +219,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
 void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,
                               attr_info print[32],int Count,int all,bufferInfo *bufferInfo){
     blockInfo *head,*ptr;
-    int need[10],i,j,bi,li,lnum;
+    int need[10],i,j,bi,li,lnum,en;
     char *line,*detail[10],*elem,*line_c[100];
     char *lsplit=";",*esplit=",",*space=" "; 
     
@@ -235,9 +247,10 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                 i++;
                 elem=strtok(NULL,esplit);
             }
+            en=i-1;
             if (true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,count,cond)){ 
                 if (1==all)
-                for (i=1;detail[i+3]!=NULL;i++)
+                for (i=1;i<=en;i++)
                     printf("%s\t",detail[i]);
                 else
                 for (i=0;i<Count;i++)

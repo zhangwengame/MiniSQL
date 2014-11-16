@@ -6,6 +6,7 @@ int record_Num=0;
 
 void API_Module(string SQL, bufferInfo* bufferInfo)
 {
+	cout << "API"<<SQL << endl;
 	string Type,Attr,Index_Name,Attr_Name,Condition,index_name[32],Cond_Info;
 	string attr_list[10];
 	char* asplit=".";
@@ -20,12 +21,12 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 	Type.assign(SQL,0,2);
 	SQL.assign(SQL,2,SQL.length()-2);
 
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//--------------------------------------------------------------------------
 	//创建数据库
 	if(Type=="00")
 		createDatabase(SQL);
 	
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//--------------------------------------------------------------------------
 	//创建数据表
 	else if(Type=="01")
 	{
@@ -74,7 +75,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 		}		
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//--------------------------------------------------------------------------
 	//创建索引
 	else if(Type=="02")
 	{
@@ -95,7 +96,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 		}
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//--------------------------------------------------------------------------
 	//删除数据库
 	else if(Type=="10")
 	{
@@ -108,7 +109,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
            dropDatabase(DB_Name);
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//--------------------------------------------------------------------------
 	//删除数据表
 	/*else if(Type=="11")
 	{
@@ -124,7 +125,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 		}
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//--------------------------------------------------------------------------
 	//删除索引
 	else if(Type=="12")
 	{
@@ -139,7 +140,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 		}
 	}*/
 
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//--------------------------------------------------------------------------
 	//选择语句(无where子句)
 	else if(Type=="20")
 	{
@@ -176,7 +177,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 		}		
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//--------------------------------------------------------------------------
 	//选择语句(有where子句)
 	else if(Type=="21")
 	{
@@ -209,7 +210,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
             
             for (i=0;i<num;i++){
                 conds[i]=Str_To_Conds(DB_Name,Table_Name,conds_str[i]);
-				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right0<<endl;
+				cout<<conds[i].left<<" "<<conds[i].type<<" "<<conds[i].right0<<endl;
 			}
             
 			if(Table_Name.find(' ')!=-1)
@@ -235,7 +236,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			}		
 		}
     }
-    //////////////////////////////////////////////////////////////////////////////
+    //--------------------------------------------------------------------------
     // 插入元组 
     else if (Type=="30")
          if (!existDatabase(DB_Name)) {
@@ -252,7 +253,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
              Insert_Item(DB_Name,Table_Name,Attr,record_Num);
         }
         
-    /////////////////////////////////////////////////////////////////////////////
+    //--------------------------------------------------------------------------
     // 有where的删除操作 
     else if (Type=="40")
         if (!existDatabase(DB_Name)) {
@@ -301,29 +302,29 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
     if (index>0){
         conds.left=str.substr(0,index);
         ai=getAttrInfo(DB_Name,Table_Name,conds.left);
-        switch (ai->type){
+        
+        if (attrOrder(DB_Name,Table_Name,str.substr(index+1))>0)
+            conds.type=-attrOrder(DB_Name,Table_Name,str.substr(index+1));
+        if (attrOrder(DB_Name,Table_Name,str.substr(index+2))>0)
+            conds.type=-attrOrder(DB_Name,Table_Name,str.substr(index+2));
+        
+        switch (conds.type){
             case 0:  
-                 conds.right0=atoi((str.substr(index+1)).c_str());
+                 conds.right0=atoi((str.substr(index+2)).c_str());
                  break;
             case 1:
-                 strcpy(conds.right1,(str.substr(index+1)).c_str());
+                 strcpy(conds.right1,(str.substr(index+2)).c_str());
                  break;
             case 2:
-                 conds.right2=atoi((str.substr(index+1)).c_str());
+                 conds.right2=atoi((str.substr(index+2)).c_str());
                  break;
         }
         if (str[index+1]=='=')
             conds.symbol=-1;
         else if (str[index+1]=='>')
             conds.symbol=3;
-        else
-            conds.symbol=-2;
-    }
-    index=str.find('>');
-    if (index>0){
-        conds.left=str.substr(0,index);
-		ai = getAttrInfo(DB_Name, Table_Name, conds.left);
-        switch (ai->type){
+        else {
+            switch (ai->type){
             case 0:  
                  conds.right0=atoi((str.substr(index+1)).c_str());
                  break;
@@ -333,10 +334,47 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
             case 2:
                  conds.right2=atoi((str.substr(index+1)).c_str());
                  break;
+            }
+            conds.symbol=-2;
+        }
+    }
+    index=str.find('>');
+    if (index>0){
+        conds.left=str.substr(0,index);
+        ai=getAttrInfo(DB_Name,Table_Name,conds.left);
+        conds.type=ai->type;
+        
+        if (attrOrder(DB_Name,Table_Name,str.substr(index+1))>0)
+            conds.type=-attrOrder(DB_Name,Table_Name,str.substr(index+1));
+        if (attrOrder(DB_Name,Table_Name,str.substr(index+2))>0)
+            conds.type=-attrOrder(DB_Name,Table_Name,str.substr(index+2));
+        
+        switch (conds.type){
+            case 0:  
+                 conds.right0=atoi((str.substr(index+2)).c_str());
+                 break;
+            case 1:
+                 strcpy(conds.right1,(str.substr(index+2)).c_str());
+                 break;
+            case 2:
+                 conds.right2=atoi((str.substr(index+2)).c_str());
+                 break;
         }
         if (str[index+1]=='=')
             conds.symbol=1;
-        else 
+        else {
+            switch (ai->type){
+            case 0:  
+                 conds.right0=atoi((str.substr(index+1)).c_str());
+                 break;
+            case 1:
+                 strcpy(conds.right1,(str.substr(index+1)).c_str());
+                 break;
+            case 2:
+                 conds.right2=atoi((str.substr(index+1)).c_str());
+                 break;
+            }
+        }
             conds.symbol=2;
     }
     
@@ -352,9 +390,9 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
     //API_Module("01Balance,ele1.ele2.ele3");
     //API_Module("30Balance,11,22,33");
     //API_Module("30Balance,14,15,16");
-	API_Module("21*,Balance,ele1<13&ele2>32",run);
+	API_Module("21*,Balance,ele1<ele2&ele3>34",run);
 	//API_Module("40Balance,ele1>0&elem2>0");
-	//API_Module("20*,Balance");
+	//API_Module("20*,Balance",run);
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
 	while (1);

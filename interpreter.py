@@ -67,7 +67,7 @@ def interpreter():
                 s1=m.group(1).replace(" ","")
                 s2=m.group(2).replace(" ","")
                 s3=m.group(3).replace(" ","")
-                s="02"+s1+'.'+s2+'.'+s3
+                s="02"+s1+','+s2+','+s3
             else:
                 print "Syntax error of create index!"
         return s;
@@ -81,13 +81,13 @@ def interpreter():
                 s2=m.group(2).replace(" ","")
                 s2=s2.replace("and","&");
                 s2=s2.replace("or","|");
-                s="40"+s1+","+s2
+                s="41"+s1+","+s2
                 return s
         else:
             m = re.match(r"delete from(.*);", s)
             s1=m.group(1).replace(" ","")
             s1=s1.replace(",",".");
-            s="41"+s1
+            s="40"+s1
             return s
     def insert_clause(s):
         if "into" not in s:
@@ -139,4 +139,8 @@ def interpreter():
     return sql
     #print sql
 
+<<<<<<< HEAD
 #interpreter()
+=======
+interpreter()
+>>>>>>> 1eca3dd003a74fa75ac9eee29e0f6a2030ab39a8
