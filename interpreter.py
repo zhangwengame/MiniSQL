@@ -35,8 +35,6 @@ def interpreter():
             m=re.match(r"create.*table(.*)", s1)
             s1=m.group(1).replace(" ","")
             s2=s2.replace(" ","")
-            print "s1",s1
-            print "s2",s2
             s="01"+s1+','
             s3=""
             if "primarykey" in s2:
@@ -47,7 +45,7 @@ def interpreter():
             else:
                 m=re.match(r"(.*)\);$", s2)
                 s2=m.group(1)
-            print s2
+            #print s2
             s2=s2.split(',')
             for t in s2:
                 if len(s3)>0 and s3 in t:
@@ -138,7 +136,7 @@ def interpreter():
     elif "insert" in sql:
         sql=insert_clause(sql)
     #sql=sql.replace("$","")
-    #return sql
-    print sql
+    return sql
+    #print sql
 
-interpreter()
+#interpreter()
