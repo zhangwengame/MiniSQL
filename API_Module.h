@@ -15,7 +15,7 @@
 #include <string>
 using namespace std;
 
-void  API_Module(string SQL);
+void API_Module(string SQL, bufferInfo* bufferInfo);
 //显示帮助信息
 //void Help();
 //插入索引节点
@@ -26,4 +26,4 @@ void  API_Module(string SQL);
 //void Find_Index(string DB_Name,string Table_Name,index_info & index);
 //获取条件的索引信息
 //void Get_Index(string DB_Name,string Table_Name,int & start,int & end,int type,index_info & index);
-conditionInfo Str_To_Conds(string str);
+conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str);

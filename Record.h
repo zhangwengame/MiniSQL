@@ -9,7 +9,6 @@
 #include <fstream>
 #include <set>
 #include <string>
-#include <iostream>
 #include "Buffer.h"
 using namespace std;
 #include "Catalog.h"
@@ -25,7 +24,9 @@ struct index_info{
 struct conditionInfo{
     int type,symbol;
     string left;
-    int right;
+    int right0;
+    char *right1;
+    float right2;
 };
 
 //char *lsplit=" ",*esplit=",";
@@ -42,14 +43,18 @@ void Select_With_Greater_Cond(string DB_Name,string Table_Name,conditionInfo con
 void Select_With_Smaller_Cond(string DB_Name,string Table_Name,conditionInfo conds[32],int count,attr_info print[32],int Count,char cond,index_info Index,int type);
 bool Confirm_To_Where(string DB_Name,string Table_Name,char *detail[10],conditionInfo conds[10],int count,char cond);
 bool Confirmi(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition);
-void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all);
-void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,attr_info print[32],int Count,int all);
-void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond);
+bool Confirmc(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition);
+bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition);
+void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all,bufferInfo *bufferInfo);
+void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,attr_info print[32],
+     int Count,int all,bufferInfo *bufferInfo);
+void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,
+     char cond,bufferInfo *bufferInfo);
 void Delete_Without_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond);
 void Delete_With_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,int index);
 void Delete_With_Equal_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,index_info Index);
 void Delete_With_Greater_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,index_info Index,int type);
-void Select_With_Smaller_Cond(string DBd_Name,string Table_Name,conditionInfo conds[32],int count,index_info nodes[32],int num,char cond,index_info Index,int type);
+void Select_With_Smaller_Cond(string DB_Name,string Table_Name,conditionInfo conds[32],int count,index_info nodes[32],int num,char cond,index_info Index,int type);
 bool Find_Useful_Cond(conditionInfo conds[10],int count,int & index);
 void Insert_Index_All(string DB_Name,string Table_Name,string Index_Name,int length,int offset,int type);
 bool Verify_Insertable(string DB_Name,string Table_Name,index_info nodes[32],int count,string Attr);

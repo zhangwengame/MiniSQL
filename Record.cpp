@@ -1,5 +1,5 @@
 #include "Record.h"
-
+#include <iostream>
  
 //void Close_Database(string DB_Name,bool closetype);
 //void Close_File(string DB_Name,string filename,int filetype,bool closetype);
@@ -40,14 +40,38 @@ bool Confirm_To_Where(string DB_Name,string Table_Name,char *detail[10],conditio
      int i;
      if ('a'==cond){                // represent and
          for (i=0;i<count;i++)
-         if (false==Confirmi(DB_Name,Table_Name,detail,conds[i]))
-            return false;
+         switch (conds[i].type){
+             case 0:
+                 if (false==Confirmi(DB_Name,Table_Name,detail,conds[i]))
+                    return false;
+                 break;
+             case 1:
+                 if (false==Confirmc(DB_Name,Table_Name,detail,conds[i]))
+                    return false;
+                 break;
+             case 2:
+                 if (false==Confirmf(DB_Name,Table_Name,detail,conds[i]))
+                    return false;
+                 break;
+         }
          return true;
 	 }
      else{                        // represent or
          for (i=0;i<count;i++)
-         if (true==Confirmi(DB_Name,Table_Name,detail,conds[i]))
-            return true;
+         switch (conds[i].type){
+             case 0:
+                 if (true==Confirmi(DB_Name,Table_Name,detail,conds[i]))
+                    return true;
+                 break;
+             case 1:
+                 if (true==Confirmc(DB_Name,Table_Name,detail,conds[i]))
+                    return true;
+                 break;
+             case 2:
+                 if (true==Confirmf(DB_Name,Table_Name,detail,conds[i]))
+                    return true;
+                 break;
+         }
          return false;
      }  
 }
@@ -58,29 +82,85 @@ bool Confirmi(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
      attr=attrOrder(DB_Name,Table_Name,condition.left);   
      if (attr>0)
      switch (condition.symbol){
-         case -2: if (atoi(detail[attr])>=condition.right)
+         case -2: if (atoi(detail[attr])>=condition.right0)
                      return false;
                   break;
-         case -1: if (atoi(detail[attr])>condition.right)
+         case -1: if (atoi(detail[attr])>condition.right0)
                      return false;
                   break;
-         case 0:  if (atoi(detail[attr])!=condition.right)
+         case 0:  if (atoi(detail[attr])!=condition.right0)
                      return false;
                   break;
-         case 1:  if (atoi(detail[attr])<condition.right)
+         case 1:  if (atoi(detail[attr])<condition.right0)
                      return false;
                   break;
-         case 2:  if (atoi(detail[attr])<=condition.right)
+         case 2:  if (atoi(detail[attr])<=condition.right0)
                      return false;
                   break;
-         case 3:  if (atoi(detail[attr])==condition.right)
+         case 3:  if (atoi(detail[attr])==condition.right0)
+                     return false;
+                  break;
+     }
+     return true;
+}
+
+bool Confirmc(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition){
+     int attr,ind,i;
+     
+     attr=attrOrder(DB_Name,Table_Name,condition.left);   
+     if (attr>0)
+     switch (condition.symbol){
+         case -2: if ((strcmp(detail[attr],condition.right1)>0)&&(strcmp(detail[attr],condition.right1)==0))
+                     return false;
+                  break;
+         case -1: if (strcmp(detail[attr],condition.right1)>0)
+                     return false;
+                  break;
+         case 0:  if (strcmp(detail[attr],condition.right1)!=0)
+                     return false;
+                  break;
+         case 1:  if (strcmp(detail[attr],condition.right1)<0)
+                     return false;
+                  break;
+         case 2:  if ((strcmp(detail[attr],condition.right1)<0)&&(strcmp(detail[attr],condition.right1)==0))
+                     return false;
+                  break;
+         case 3:  if (strcmp(detail[attr],condition.right1)==0)
+                     return false;
+                  break;
+     }
+     return true;
+}
+
+bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition){
+     int attr,ind,i;
+     
+     attr=attrOrder(DB_Name,Table_Name,condition.left);   
+     if (attr>0)
+     switch (condition.symbol){
+         case -2: if (atoi(detail[attr])>=condition.right2)
+                     return false;
+                  break;
+         case -1: if (atoi(detail[attr])>condition.right2)
+                     return false;
+                  break;
+         case 0:  if (atoi(detail[attr])!=condition.right2)
+                     return false;
+                  break;
+         case 1:  if (atoi(detail[attr])<condition.right2)
+                     return false;
+                  break;
+         case 2:  if (atoi(detail[attr])<=condition.right2)
+                     return false;
+                  break;
+         case 3:  if (atoi(detail[attr])==condition.right0)
                      return false;
                   break;
      }
      return true;
 }
         
-void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all){
+void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all,bufferInfo* bufferInfo){
     blockInfo *head,*ptr;
     fileInfo *file;
     int need[10],i,j,bi,li,lnum;
@@ -90,9 +170,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
     for (i=0;i<count;i++)
         need[i]=print[i].num;
     
-    bufferInfo *run;
-	run= new bufferInfo;
-    head=readBlock(DB_Name,Table_Name,"",0,0,run); 
+    head=readBlock(DB_Name,Table_Name,"",0,0,bufferInfo); 
     for (bi=0;bi<1;bi++){
         line=strtok(head->cBlock,lsplit);
         li=0;
@@ -126,7 +204,8 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
     }
 }
 
-void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,attr_info print[32],int Count,int all){
+void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,
+                              attr_info print[32],int Count,int all,bufferInfo *bufferInfo){
     blockInfo *head,*ptr;
     int need[10],i,j,bi,li,lnum;
     char *line,*detail[10],*elem,*line_c[100];
@@ -134,9 +213,7 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
     
     for (i=0;i<Count;i++)
         need[i]=print[i].num;
-    bufferInfo *run;
-	run= new bufferInfo;
-	head = readBlock(DB_Name, Table_Name, "", 0, 0, run);
+    head=readBlock(DB_Name,Table_Name,"",0,0,bufferInfo);
     for (bi=0;bi<1;bi++){
         line=strtok(head->cBlock,lsplit);
         li=0;
@@ -170,15 +247,14 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
     } 
 }
 
-void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond){
-    bufferInfo *run;
+void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],
+                              int num,char cond,bufferInfo *bufferInfo){
     blockInfo *head;
     int i,j,bi,li,lnum;
     char *line,*detail[10],*elem,*line_c[100],content[4096];
     char *lsplit=";",*esplit=",",*space=" ";
     
-	run= new bufferInfo;
-    head=readBlock(DB_Name,Table_Name,"",0,0,run);
+    head=readBlock(DB_Name,Table_Name,"",0,0,bufferInfo);
     for (bi=0;bi<1;bi++){
         strcpy(content,head->cBlock);
         line=strtok(content,lsplit);

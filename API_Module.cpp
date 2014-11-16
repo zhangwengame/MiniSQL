@@ -1,11 +1,10 @@
 #include "API_Module.h"
 
 string DB_Name="D_1",Table_Name="Balance";
-conditionInfo Str_To_Conds(string str);
 attr_info print[32];
 int record_Num=0; 
 
-void API_Module(string SQL)
+void API_Module(string SQL, bufferInfo* bufferInfo)
 {
 	string Type,Attr,Index_Name,Attr_Name,Condition,index_name[32],Cond_Info;
 	string attr_list[10];
@@ -100,13 +99,11 @@ void API_Module(string SQL)
 	//É¾³ýÊý¾Ý¿â
 	else if(Type=="10")
 	{
-        bufferInfo *run;
         if (!existDatabase(DB_Name)) {
             cout<<"This database doesn't exist!"<<endl;
             return;
         }
-        run=new bufferInfo;
-        closeDatabase(DB_Name,run);
+        closeDatabase(DB_Name,bufferInfo);
         if (SQL==DB_Name)
            dropDatabase(DB_Name);
 	}
@@ -160,7 +157,7 @@ void API_Module(string SQL)
 			else
 			{
 				if(Attr=="*"){
-					Select_No_Where(DB_Name,Table_Name,print,0,1);
+					Select_No_Where(DB_Name,Table_Name,print,0,1,bufferInfo);
                 }
 				else {
                     count=0;
@@ -173,7 +170,7 @@ void API_Module(string SQL)
                     attr_list[count++]=Attr;
                     for (i=0;i<count;i++)
                         print[i].num=attrOrder(DB_Name,Table_Name,attr_list[i]);
-					Select_No_Where(DB_Name,Table_Name,print,count,0);
+					Select_No_Where(DB_Name,Table_Name,print,count,0,bufferInfo);
                 }
 			}
 		}		
@@ -211,8 +208,8 @@ void API_Module(string SQL)
 			conds_str[num++]=Cond_Info;
             
             for (i=0;i<num;i++){
-                conds[i]=Str_To_Conds(conds_str[i]);
-				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
+                conds[i]=Str_To_Conds(DB_Name,Table_Name,conds_str[i]);
+				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right0<<endl;
 			}
             
 			if(Table_Name.find(' ')!=-1)
@@ -220,7 +217,7 @@ void API_Module(string SQL)
 			else
 			{
 				if(Attr=="*"){
-                    Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,0,1);
+                    Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,0,1,bufferInfo);
                 }
 				else {
                     count=0;
@@ -233,7 +230,7 @@ void API_Module(string SQL)
                     attr_list[count++]=Attr;
                     for (i=0;i<count;i++)
                         print[i].num=attrOrder(DB_Name,Table_Name,attr_list[i]);
-					Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,count,0);
+					Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,count,0,bufferInfo);
 				}
 			}		
 		}
@@ -283,25 +280,38 @@ void API_Module(string SQL)
 			conds_str[num++]=Cond_Info;
 			
             for (i=0;i<num;i++){
-                conds[i]=Str_To_Conds(conds_str[i]);
-				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right<<endl;
+                conds[i]=Str_To_Conds(DB_Name,Table_Name,conds_str[i]);
+				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right0<<endl;
 			}
 			if(Table_Name.find(' ')!=-1)
 				cout<<"error: can not select from more than one table!"<<endl;
 			else
-			    Delete_With_Where(DB_Name,Table_Name,conds,num,nodes,0,AO);		
+			    Delete_With_Where(DB_Name,Table_Name,conds,num,nodes,0,AO,bufferInfo);		
 		}
     else cout<<"error: invalid type of insruction!"<<endl;
 }
 
-conditionInfo Str_To_Conds(string str){
+conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
     conditionInfo conds;
+    attrInfo *ai;
     int index=-1;
+    
     conds.symbol=0;
     index=str.find('<');
     if (index>0){
         conds.left=str.substr(0,index);
-        conds.right=atoi((str.substr(index+1)).c_str());
+        ai=getAttrInfo(DB_Name,Table_Name,conds.left);
+        switch (ai->type){
+            case 0:  
+                 conds.right0=atoi((str.substr(index+1)).c_str());
+                 break;
+            case 1:
+                 strcpy(conds.right1,(str.substr(index+1)).c_str());
+                 break;
+            case 2:
+                 conds.right2=atoi((str.substr(index+1)).c_str());
+                 break;
+        }
         if (str[index+1]=='=')
             conds.symbol=-1;
         else if (str[index+1]=='>')
@@ -312,27 +322,42 @@ conditionInfo Str_To_Conds(string str){
     index=str.find('>');
     if (index>0){
         conds.left=str.substr(0,index);
-        conds.right=atoi((str.substr(index+1)).c_str());
+		ai = getAttrInfo(DB_Name, Table_Name, conds.left);
+        switch (ai->type){
+            case 0:  
+                 conds.right0=atoi((str.substr(index+1)).c_str());
+                 break;
+            case 1:
+                 strcpy(conds.right1,(str.substr(index+1)).c_str());
+                 break;
+            case 2:
+                 conds.right2=atoi((str.substr(index+1)).c_str());
+                 break;
+        }
         if (str[index+1]=='=')
             conds.symbol=1;
         else 
             conds.symbol=2;
     }
+    
     return conds;
 }
 
 /*int main(){
+    bufferInfo *run;
+    run=new bufferInfo;
     //addAttr("D_1", "Balance", "ele1", 8, 0, 1);
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
     //API_Module("01Balance,ele1.ele2.ele3");
     //API_Module("30Balance,11,22,33");
     //API_Module("30Balance,14,15,16");
-	API_Module("21*,Balance,ele1<13&elem2>32");
+	API_Module("21*,Balance,ele1<13&ele2>32",run);
 	//API_Module("40Balance,ele1>0&elem2>0");
 	//API_Module("20*,Balance");
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
-    while (1);
-} */
+	while (1);
+}*/
+
 

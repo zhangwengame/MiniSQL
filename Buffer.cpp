@@ -97,7 +97,7 @@ blockInfo*	findBlock(bufferInfo* bufferInfo)
 		{
 			fileInfo *fite,*minFile;
 			blockInfo *bite,*minBlock=NULL;
-			time_t minTime = -1;
+			int minTime = -1;
 			for (fite = bufferInfo->fileHandle; fite != NULL; fite = fite->next)
 			{
 				for (bite = fite->firstBlock; bite != NULL; bite = bite->next)
@@ -169,6 +169,8 @@ blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
 blockInfo* readBlock(string DB_Name, string fileName, string attrName, int blockNum, int fileType, bufferInfo* bufferInfo)
 {
 	fileInfo *file;
+	SYSTEMTIME  time;
+	GetSystemTime(&time);
 	file = existFile(DB_Name, fileName, attrName, fileType, bufferInfo);
 	if (file == NULL)
 		file = getfile(DB_Name, fileName, attrName, fileType, bufferInfo);
@@ -176,6 +178,8 @@ blockInfo* readBlock(string DB_Name, string fileName, string attrName, int block
 	block = existBlock(file, blockNum);
 	if (block == NULL)
 		block = getblock(file, blockNum, bufferInfo);
+	if (block != NULL)
+		block->iTime = time.wMilliseconds;
 	return block;
 }
 void closeDatabase(string DB_Name, bufferInfo* bufferInfo){
