@@ -9,6 +9,7 @@ struct Node
 	bool leaf;
 	vector<char> value;
 	vector<int> record; //blocknum or recordnum
+	int type;
 	int pre;
 	int suc;
 	int parent;
@@ -25,8 +26,8 @@ void encodeNode(const Node& p);
 Node parseNode(int block_num);
 int search_one(string database,string table_name,struct index_info& inform,int block_num);
 char split_child(Node& target,Node& new_target);
-void insert_parent(char a,int p,Node& lchild,Node& rchild);
+void insert_parent(void *a,int p,Node& lchild,Node& rchild);
 void insert_one(string database,string table_name,struct index_info& inform,int block_num,int line_num);
-void delete_entry(char k,int position,int offset);
-void delete_one(string database,string table_name,struct index_info& inform,int block_num);
+//void delete_entry(char k,int position,int offset);
+//void delete_one(string database,string table_name,struct index_info& inform,int block_num);
 #endif
