@@ -1,6 +1,5 @@
 #include "API_Module.h"
 
-
 string DB_Name="D_1",Table_Name="Balance";
 conditionInfo Str_To_Conds(string str);
 attr_info print[32];
@@ -31,12 +30,17 @@ void API_Module(string SQL)
 	//创建数据表
 	else if(Type=="01")
 	{
-		if(0==DB_Name.length())
-			cout<<"error: you have not specified the database to be used!"<<endl;
+		if (!existDatabase(DB_Name)) {
+                 cout<<"error: This database doesn't exist!"<<endl;
+            }  
 		else
 		{
             index=SQL.find(',');
 			Table_Name=SQL.substr(0,index);
+			if (existTable(DB_Name,Table_Name)) {
+                cout<<"error: This table has already existed!"<<endl;
+                return;
+            }
 			Attr=SQL.substr(index+1,SQL.length()-index-1);
 			cout<<Table_Name<<" "<<Attr<<endl;
 			createTable(DB_Name,Table_Name);
@@ -47,7 +51,10 @@ void API_Module(string SQL)
                     Attr=Attr.substr(1);
                 }
                 else primary=0;
-                
+                if (attrOrder(DB_Name,Table_Name,Attr)!=0) {
+                    cout<<"error: You cannot create the same attribute again!"<<endl;
+                    return;
+                }
                 switch (Attr[index]){
                     case 'i':
                         addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,0);
@@ -62,7 +69,6 @@ void API_Module(string SQL)
                 Attr=Attr.substr(index+1);
                 index=Attr.find('.');
             }
-            if (Attr.length()>0) addAttr(DB_Name,Table_Name,Attr,8,0,0);
 			//判断是否创建主键索引
 			/*if(!Attr_Name.IsEmpty()) 
 				Create_Index(Table_Name,Table_Name,Attr_Name,DB_Name,length,offset,type);*/
@@ -73,8 +79,9 @@ void API_Module(string SQL)
 	//创建索引
 	else if(Type=="02")
 	{
-		if(0==DB_Name.length())
-			cout<<"error: you have not specified the database to be used!"<<endl;
+		if (!existDatabase(DB_Name)) {
+                 cout<<"error: This database doesn't exist!"<<endl;
+            } 
 		else
 		{
 			index=SQL.find(',');
@@ -93,7 +100,13 @@ void API_Module(string SQL)
 	//删除数据库
 	else if(Type=="10")
 	{
-        //closeDatabase(DB_Name,run);
+        bufferInfo *run;
+        if (!existDatabase(DB_Name)) {
+            cout<<"This database doesn't exist!"<<endl;
+            return;
+        }
+        run=new bufferInfo;
+        closeDatabase(DB_Name,run);
         if (SQL==DB_Name)
            dropDatabase(DB_Name);
 	}
@@ -133,8 +146,9 @@ void API_Module(string SQL)
 	//选择语句(无where子句)
 	else if(Type=="20")
 	{
-		if(DB_Name[1]==0)
-			cout<<"error: you have not specified the database to be used!"<<endl;
+		if (!existDatabase(DB_Name)) {
+                 cout<<"error: This database doesn't exist!"<<endl;
+            } 
 		else
 		{
 		    index1=SQL.find(',');
@@ -169,8 +183,9 @@ void API_Module(string SQL)
 	//选择语句(有where子句)
 	else if(Type=="21")
 	{
-		if(0==DB_Name.length())
-			cout<<"error: you have not specified the database to be used!"<<endl;
+		if (!existDatabase(DB_Name)) {
+                 cout<<"error: This database doesn't exist!"<<endl;
+            } 
 		else
 		{
 			index1=SQL.find(',');
@@ -223,23 +238,36 @@ void API_Module(string SQL)
 			}		
 		}
     }
-    
+    //////////////////////////////////////////////////////////////////////////////
+    // 插入元组 
     else if (Type=="30")
-         if (0==DB_Name.length())
-			cout<<"error: you have not specified the database to be used!"<<endl;
+         if (!existDatabase(DB_Name)) {
+                 cout<<"error: This database doesn't exist!"<<endl;
+            } 
 		else{
              index=SQL.find(',');
              Table_Name=SQL.substr(0,index);
+             if (!existTable(DB_Name,Table_Name)) {
+                 cout<<"error: This table doesn't exist!"<<endl;
+                 return;
+             } 
              Attr=SQL.substr(index+1);
              Insert_Item(DB_Name,Table_Name,Attr,record_Num);
         }
         
+    /////////////////////////////////////////////////////////////////////////////
+    // 有where的删除操作 
     else if (Type=="40")
-        if (0==DB_Name.length())
-			cout<<"error: you have not specified the database to be used!"<<endl;
+        if (!existDatabase(DB_Name)) {
+                 cout<<"error: This database doesn't exist!"<<endl;
+            } 
 		else{
             index=SQL.find(',');
             Table_Name=SQL.substr(0,index);
+            if (!existTable(DB_Name,Table_Name)) {
+                 cout<<"error: This table doesn't exist!"<<endl;
+                 return;
+            } 
             Cond_Info=SQL.substr(index+1);
             num=0;
 			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1))

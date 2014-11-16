@@ -1,8 +1,8 @@
 #include "Record.h"
 #include <iostream>
  
-void Close_Database(string DB_Name,bool closetype);
-void Close_File(string DB_Name,string filename,int filetype,bool closetype);
+//void Close_Database(string DB_Name,bool closetype);
+//void Close_File(string DB_Name,string filename,int filetype,bool closetype);
 void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num){
     bufferInfo *run;
     char content[128];
@@ -40,19 +40,19 @@ bool Confirm_To_Where(string DB_Name,string Table_Name,char *detail[10],conditio
      int i;
      if ('a'==cond){                // represent and
          for (i=0;i<count;i++)
-         if (false==Confirm(DB_Name,Table_Name,detail,conds[i]))
+         if (false==Confirmi(DB_Name,Table_Name,detail,conds[i]))
             return false;
          return true;
 	 }
      else{                        // represent or
          for (i=0;i<count;i++)
-         if (true==Confirm(DB_Name,Table_Name,detail,conds[i]))
+         if (true==Confirmi(DB_Name,Table_Name,detail,conds[i]))
             return true;
          return false;
      }  
 }
 
-bool Confirm(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition){
+bool Confirmi(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition){
      int attr,ind,i;
      
      attr=attrOrder(DB_Name,Table_Name,condition.left);   
