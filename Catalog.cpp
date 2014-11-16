@@ -190,24 +190,47 @@ void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, 
 	fclose(fUpdate);
 	return;
 }
-void dropIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name)
+void dropIndex(string DB_Name, string Table_Name,  string Index_Name)
 {
-	int attrNo = attrOrder(DB_Name, Table_Name, Attr_Name);
-	if (attrNo == 0)
-	{
-		printf("ERROR: There is no such attribute!\n");
-		return;
-	}
-	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat",Attr_Name;
 	FILE *fUpdate = fopen(path.c_str(), "r+");
-	fseek(fUpdate, 20 + (attrNo - 1) * 40 + 25, 0);
-	char t = fgetc(fUpdate);
-	if (t == '0')
+	int attrNo=-1, attrCount;
+	char c, name[25];
+	fscanf(fUpdate, "%d", &attrCount);
+	for (int i = 0; i < attrCount; i++)
+	{
+		fseek(fUpdate, 20 + i * 40 + 25,0);
+		c = fgetc(fUpdate);
+		if (c != '1') continue;
+		for (int j = 0; j < 14; j++)
+		{
+			name[j] = fgetc(fUpdate);
+			if (name[j] == 0)
+				break;
+		}
+		name[14] = 0;
+		if (string(name) == Index_Name)
+		{
+			attrNo = i;
+			fseek(fUpdate, 20 + i * 40, 0);
+			for (int j = 0; j < 20; j++)
+			{
+				name[j] = fgetc(fUpdate);
+				if (name[j] == 0)
+					break;
+			}
+			name[20] = 0;
+			Attr_Name = string(name);
+			break;
+		}
+	}
+	if (attrNo == -1)
 	{
 		printf("ERROR: There is no such index!\n");
+		fclose(fUpdate);
 		return;
 	}
-	fseek(fUpdate, 20 + (attrNo - 1) * 40 + 25, 0);
+	fseek(fUpdate, 20 + attrNo * 40 + 25, 0);
 	fprintf(fUpdate, "0");
 	for (int i = 0; i < 14; i++)
 		fprintf(fUpdate, "%c", 0);
