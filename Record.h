@@ -10,8 +10,9 @@
 #include <set>
 #include <string>
 #include "Buffer.h"
-using namespace std;
 #include "Catalog.h"
+using namespace std;
+
 
 struct attr_info{
 	int num;
