@@ -113,7 +113,7 @@ def interpreter():
         elif "index" in s:
             m = re.match(r"drop index(.*);", s)
             s1=m.group(1).replace(" ","")
-            s="11"+s1
+            s="12"+s1
         else: 
             print "drop what?"
         return s
@@ -139,8 +139,4 @@ def interpreter():
     return sql
     #print sql
 
-<<<<<<< HEAD
 #interpreter()
-=======
-interpreter()
->>>>>>> 1eca3dd003a74fa75ac9eee29e0f6a2030ab39a8
