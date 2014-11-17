@@ -1,6 +1,10 @@
 #ifndef _INDEX_H 
 #define _INDEX_H
 //#include <afx.h>
+#include "Buffer.h"
+#include "Buffer.cpp"
+//#include "Catalog.h"
+//#include "Catalog.cpp"
 #include <vector>
 using namespace std;
 struct Node

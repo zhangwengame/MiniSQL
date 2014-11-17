@@ -1,7 +1,3 @@
-#include "Buffer.h"
-#include "Buffer.cpp"
-//#include "Catalog.h"
-//#include "Catalog.cpp"
 #include "Index.h"
 #include <vector>
 #include <iostream>
@@ -13,6 +9,26 @@ int root=0;
 int k_type=2;
 bufferInfo *run=new bufferInfo;
 using namespace std;
+string int_char(int n){
+	string ss;
+	char *s;
+	while(n!=0){
+		ss.insert(0,1,(char)(n%26+'a'));
+		n/=26;
+	}
+	return ss;
+}
+int char_int(const char* s){
+	int num=strlen(s);
+	int base=1,result=0;
+	for(int i=0;i<num;i++){
+		if (s[num-1-i]>='a'&&s[num-1-i]<='z'){
+			result+=(s[num-1-i]-'a')*base;
+			base*=26;
+		}
+	}
+	return result;
+}
 void encodeNode(string database,string table_name,string index_name,const Node& p){ //写入该块
 	int block_num;
 	int charNum,i,t;
@@ -24,7 +40,7 @@ void encodeNode(string database,string table_name,string index_name,const Node& 
 	else if (k_type==1)
 		v_width=10;
 	else if (k_type==2)
-		v_width=1;
+		v_width=5;  //char*为5个字符
 	else
 		cout<<"Error type of key!"<<endl;
 	block_num=p.node_num;
@@ -59,7 +75,7 @@ void encodeNode(string database,string table_name,string index_name,const Node& 
 			switch (k_type){
 				case 0:sprintf(tmp,"%05d%06d",p.record[i],(int)p.value[i]);break;
 				case 1:sprintf(tmp,"%05d%10.4f",p.record[i],(float)p.value[i]);break;
-				case 2:sprintf(tmp,"%05d%c",p.record[i],(char)p.value[i]);break;
+				case 2:sprintf(tmp,"%05d%5s",p.record[i],int_char(p.value[i]).c_str());break;
 				default: cout<<"error type of key";break;
 			}
 			//sprintf(tmp,"%05d%c",p.record[i],p.value[i]);
@@ -76,7 +92,7 @@ void encodeNode(string database,string table_name,string index_name,const Node& 
 			switch (k_type){
 				case 0:sprintf(tmp,"%03d%06d",p.record[i],(int)p.value[i]);break;
 				case 1:sprintf(tmp,"%03d%10.4f",p.record[i],(float)p.value[i]);break;
-				case 2:sprintf(tmp,"%03d%c",p.record[i],(char)p.value[i]);break;
+				case 2:sprintf(tmp,"%03d%5s",p.record[i],int_char(p.value[i]).c_str());break;
 				default: cout<<"error type of key";break;
 			}
 			strcat(s,tmp);
@@ -135,8 +151,8 @@ Node parseNode(string database,string table_name,string index_name,int block_num
                 	case 1:p.value.push_back(atof(B.substr(10+i*15,10).c_str()));
                 	result=(b->cBlock[5+i*15]-'0')*10000+(b->cBlock[6+i*15]-'0')*1000+(b->cBlock[7+i*15]-'0')*100+(b->cBlock[8+i*15]-'0')*10+(b->cBlock[9+i*15]-'0');
                 		break;
-                	case 2:p.value.push_back(b->cBlock[10+i*6]);
-                		result=(b->cBlock[5+i*6]-'0')*10000+(b->cBlock[6+i*6]-'0')*1000+(b->cBlock[7+i*6]-'0')*100+(b->cBlock[8+i*6]-'0')*10+(b->cBlock[9+i*6]-'0');
+                	case 2:p.value.push_back(char_int(B.substr(10+i*10,5).c_str()));
+                		result=(b->cBlock[5+i*10]-'0')*10000+(b->cBlock[6+i*10]-'0')*1000+(b->cBlock[7+i*10]-'0')*100+(b->cBlock[8+i*10]-'0')*10+(b->cBlock[9+i*10]-'0');
                 		break;
                 }
                 
@@ -156,8 +172,8 @@ Node parseNode(string database,string table_name,string index_name,int block_num
                 	case 1:p.value.push_back(atof(B.substr(8+i*13,10).c_str()));
                 	result=(b->cBlock[5+i*13]-'0')*100+(b->cBlock[6+i*13]-'0')*10+b->cBlock[7+i*13]-'0';
                 		break;
-                	case 2:p.value.push_back(b->cBlock[8+i*4]);
-                		result=(b->cBlock[5+i*4]-'0')*100+(b->cBlock[6+i*4]-'0')*10+b->cBlock[7+i*4]-'0';
+                	case 2:p.value.push_back(char_int(B.substr(8+i*8,5).c_str()));
+                		result=(b->cBlock[5+i*8]-'0')*100+(b->cBlock[6+i*8]-'0')*10+b->cBlock[7+i*8]-'0';
                 		break;
                 }
                 p.record.push_back(result);
@@ -170,7 +186,7 @@ Node parseNode(string database,string table_name,string index_name,int block_num
                 	result=(b->cBlock[5+i*13]-'0')*100+(b->cBlock[6+i*13]-'0')*10+b->cBlock[7+i*13]-'0';
                 		break;
                 	case 2:
-                		result=(b->cBlock[5+i*4]-'0')*100+(b->cBlock[6+i*4]-'0')*10+b->cBlock[7+i*4]-'0';
+                		result=(b->cBlock[5+i*8]-'0')*100+(b->cBlock[6+i*8]-'0')*10+b->cBlock[7+i*8]-'0';
                 		break;
             }
             p.record.push_back(result);
@@ -190,7 +206,7 @@ int search_one(string database,string table_name,struct index_info& inform,int b
 	switch (k_type){
 		case 0:value=*(int*)inform.value;break;
 		case 1:value=*(float*)inform.value;break;
-		case 2:value=*(char*)inform.value;break;
+		case 2:value=char_int((char*)inform.value);break;
 	}
 	cout<<"value"<<value<<endl;
 	cout<<"node_num"<<tmp.node_num<<tmp.leaf<<endl;
@@ -417,7 +433,7 @@ void insert_one(string database,string table_name,struct index_info& inform,int 
 	switch (k_type){
 		case 0:k=*(int*)inform.value;break;
 		case 1:k=*(float*)inform.value;break;
-		case 2:k=*(char*)inform.value;break;
+		case 2:k=char_int((char*)inform.value);break;
 	}
 	cout<<"k"<<k<<endl;
 	if (new_block==root){
@@ -662,63 +678,49 @@ void delete_one(string database,string table_name,struct index_info& inform,int 
 	cout<<"inform.offset:"<<inform.offset<<endl;
 	delete_entry(database,table_name,inform.index_name,inform.value,position,inform.offset);
 }
+/*
 int main(int argc, char const *argv[])
 {	
-	/*createDatabase("D_1");
-	createTable("D_1", "Balance");
-    createTable("D_1", "Balance1");
-	createTable("D_1", "Balance2");
-	addAttr("D_1", "Balance", "account", 8, 0, 1);
-	addAttr("D_1", "Balance", "accounsa", 0, 0, 0); 
- 	createIndex("D_1", "Balance", "account", "index1");*/
+
 	struct index_info index1;
 	string table="Balance";
 	string database="D_1";
 	index1.index_name="account";
-	char c='a';
-	index1.value=&c;
+	char* a="jim";
+	index1.value=a;
 	//index1.type=0;
 	index1.offset=1;
 	//delete_one("database","table1",index1,0);
 	//insert_one("database","table1",index1,0,index1.offset);
 	insert_one(database,table,index1,0,index1.offset);
-	c='b';
+	char *b="kate";
+	index1.value=b;
 	index1.offset=2;
 	insert_one(database,table,index1,0,index1.offset);
-	c='c';
+	char *c="john";
+	index1.value=c;
 	index1.offset=3;
 	insert_one(database,table,index1,0,index1.offset);
-	c='d';
+	char *d="marry";
+	index1.value=d;
 	index1.offset=4;
 	insert_one(database,table,index1,0,index1.offset);
-	c='e';
+	char*e="tom";
+	index1.value=e;
 	index1.offset=5;
 	insert_one(database,table,index1,0,index1.offset);
-	c='f';
+	char *f="queen";
+	index1.value=f;
 	index1.offset=6;
 	insert_one(database,table,index1,0,index1.offset);
-	c='g';
+	char *g="porry";
+	index1.value=g;
 	index1.offset=7;
 	insert_one(database,table,index1,0,index1.offset);
-	c='h';
+	char *h="green";
+	index1.value=h;
 	index1.offset=8;
 	insert_one(database,table,index1,0,index1.offset);
-	c='i';
-	index1.offset=9;
-	insert_one(database,table,index1,0,index1.offset);
-	c='j';
-	index1.offset=10;
-	insert_one(database,table,index1,0,index1.offset);
-	c='k';
-	index1.offset=11;
-	insert_one(database,table,index1,0,index1.offset);
-	c='l';
-	index1.offset=12;
-	insert_one(database,table,index1,0,index1.offset);
-	c='m';
-	index1.offset=13;
-	insert_one(database,table,index1,0,index1.offset);
-	//delete_one("database","table1",index1,0);
 	while(1);
 	//index1.offset=4;
 	//index1.value='h';
@@ -727,4 +729,4 @@ int main(int argc, char const *argv[])
 	//createIndex("database","table1","amount","index");
 	//while(1);
 	return 0;
-}
+}*/
