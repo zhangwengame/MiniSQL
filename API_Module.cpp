@@ -263,7 +263,9 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                  return;
              } 
              Attr=SQL.substr(index+1);
+             record_Num=getRecordSum(DB_Name,Table_Name);
              Insert_Item(DB_Name,Table_Name,Attr,record_Num);
+             setRecordSum(DB_Name,Table_Name,record_Num);
         }
         
     //--------------------------------------------------------------------------
