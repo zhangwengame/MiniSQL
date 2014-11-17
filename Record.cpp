@@ -1,5 +1,6 @@
 #include "Record.h"
 #include <iostream>
+#include <cmath>
  
 //void Close_Database(string DB_Name,bool closetype);
 //void Close_File(string DB_Name,string filename,int filetype,bool closetype);
@@ -15,8 +16,8 @@ void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,b
     
     bi=record_Num/32;
     head=readBlock(DB_Name,Table_Name,"",bi,0,bufferInfo);
-    if (head->cBlock!=NULL)
-       cout<<Attr<<endl;
+    //if (head->cBlock!=NULL)
+       //cout<<Attr<<endl;
     start=128*record_Num-4096*bi;
     strncpy(content,Attr.c_str(),Attr.length());
     int leng=Attr.length();
@@ -70,7 +71,7 @@ void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,b
     index_0.value=&fint;
     index_0.offset=record_Num;
     insert_one(DB_Name,Table_Name,index_0,0,index_0.offset,bufferInfo); */
-    
+	cout << "Insert succeed!" << endl;
     writeBlock(DB_Name,head);
 }
      
@@ -173,7 +174,7 @@ bool Confirmc(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
      attr=attrOrder(DB_Name,Table_Name,condition.left);   
      if (attr>0)
      switch (condition.symbol){
-         case -2: if ((strcmp(detail[attr],condition.right1)>0)&&(strcmp(detail[attr],condition.right1)==0))
+	 case -2: if ((strcmp(detail[attr],condition.right1)>0)||(strcmp(detail[attr],condition.right1)==0))
                      return false;
                   break;
          case -1: if (strcmp(detail[attr],condition.right1)>0)
@@ -185,7 +186,7 @@ bool Confirmc(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
          case 1:  if (strcmp(detail[attr],condition.right1)<0)
                      return false;
                   break;
-         case 2:  if ((strcmp(detail[attr],condition.right1)<0)&&(strcmp(detail[attr],condition.right1)==0))
+         case 2:  if ((strcmp(detail[attr],condition.right1)<0)||(strcmp(detail[attr],condition.right1)==0))
                      return false;
                   break;
          case 3:  if (strcmp(detail[attr],condition.right1)==0)
@@ -207,7 +208,7 @@ bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
          case -1: if (atoi(detail[attr])>condition.right2)
                      return false;
                   break;
-         case 0:  if (atoi(detail[attr])!=condition.right2)
+         case 0:  if (fabs(atoi(detail[attr])-condition.right2)>0.001)
                      return false;
                   break;
          case 1:  if (atoi(detail[attr])<condition.right2)
@@ -216,7 +217,7 @@ bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
          case 2:  if (atoi(detail[attr])<=condition.right2)
                      return false;
                   break;
-         case 3:  if (atoi(detail[attr])==condition.right0)
+		 case 3:  if (fabs(atoi(detail[attr]) - condition.right2)<0.001)
                      return false;
                   break;
      }
@@ -227,7 +228,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
     blockInfo *head,*ptr;
     fileInfo *file;
     int need[10],i,j,bi,li,lnum,en,record_Num;
-    char *line,*detail[10],*elem,*line_c[100];
+    char *line,*detail[10],*elem,*line_c[500];
     char *lsplit=";",*esplit=",",*space=" ";
     char block[4096];
     
@@ -251,6 +252,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
         }
         
         for (li=0;li<lnum;li++){
+			if (line_c[li]==NULL) continue;
             elem=strtok(line_c[li],esplit);
             i=1;
             while (elem!=NULL){
@@ -274,21 +276,22 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                               attr_info print[32],int Count,int all,bufferInfo *bufferInfo,int use,int &check){
     blockInfo *head,*ptr;
     int need[10],i,j,bi,li,lnum,en,record_Num;
-    char *line,*detail[10],*elem,*line_c[100];
+    char *line,*detail[10],*elem,*line_c[500];
     char block[4096];
     char *lsplit=";",*esplit=",",*space=" "; 
     
     for (i=0;i<Count;i++)
         need[i]=print[i].num;
     record_Num=getRecordSum(DB_Name,Table_Name);
-    cout<<record_Num<<endl;
+    //cout<<record_Num<<endl;
     for (bi=0;bi<=(int)(record_Num/32-0.01);bi++){
         head=readBlock(DB_Name,Table_Name,"",bi,0,bufferInfo);
         strcpy(block,head->cBlock);
         line=strtok(block,lsplit);
         li=0;
         while (line!=NULL){
-              line_c[li]=line;
+			line_c[li] = new char[130];
+              strcpy(line_c[li],line);
               li++;
               line=strtok(NULL,lsplit);
         }
@@ -301,15 +304,19 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
             elem=strtok(line_c[li],esplit);
             i=1;
             while (elem!=NULL){
-                detail[i]=elem;
+				detail[i] = new char[20];
+				strcpy(detail[i],elem);
                 i++;
                 elem=strtok(NULL,esplit);
             }
             en=i-1;
             if ((true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,count,cond))&&(use==1)){ 
-                if (1==all)
-                for (i=1;i<=en;i++)
-                    printf("%s\t",detail[i]);
+				if (1 == all){
+					for (i = 1; i <= en; i++)
+						printf("%s\t", detail[i]);
+					//printf("%s\n", detail[1]);
+					//printf("%s\n", conds[0].left.c_str());
+				}
                 else
                 for (i=0;i<Count;i++)
                     printf("%s\t",detail[need[i]]);
@@ -324,12 +331,13 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
 void Delete_No_Where(string DB_Name,string Table_Name,bufferInfo *bufferInfo){
     blockInfo *head;
     int i;
-    cout<<Table_Name<<endl;
+    //cout<<Table_Name<<endl;
     head=readBlock(DB_Name,Table_Name,"",0,0,bufferInfo);
-    cout<<head->cBlock<<endl;
+    //cout<<head->cBlock<<endl;
     for (i=strlen(head->cBlock);i>0;i--)
         head->cBlock[i]='\0';
     head->cBlock[0]='\0';
+	cout << "Delete succeed!" << endl;
     writeBlock(DB_Name,head);
 }
     
@@ -349,7 +357,7 @@ void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
         while (line!=NULL){
               line_c[li]=new char[130];
               strcpy(line_c[li],line);
-              cout<<li<<":"<<line_c[li]<<endl;
+              //cout<<li<<":"<<line_c[li]<<endl;
               li++;
               line=strtok(NULL,lsplit);
         }
@@ -357,12 +365,12 @@ void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
         for (li=0;li<lnum;li++){
             line_b[li]=new char[130];
             line_b[li]=strtok(line_c[li],space);
-            cout<<li<<":"<<(line_b[li]==NULL)<<endl;
+            //cout<<li<<":"<<(line_b[li]==NULL)<<endl;
         }
         
         for (li=0;li<lnum;li++){
             if (line_b[li]==NULL) {
-                cout<<"skip"<<endl;
+                //cout<<"skip"<<endl;
                 continue;
                 }
             elem=strtok(line_c[li],esplit);
@@ -382,6 +390,7 @@ void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
         }
         writeBlock(DB_Name,head);
     } 
+	cout << "Delete succeed!" << endl;
 } 
 void Delete_Without_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond);
 void Delete_With_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,int index);

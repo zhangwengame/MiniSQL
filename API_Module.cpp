@@ -116,16 +116,12 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 	else if(Type=="10")
 	{
         DB_Name=SQL;
-		cout << "H1" << endl;
         if (!existDatabase(DB_Name)) {
             cout<<"This database doesn't exist!"<<endl;
             return;
         }
-		cout << "H0" << endl;
         closeDatabase(DB_Name,bufferInfo);
-		cout << "H2" << endl;
         dropDatabase(DB_Name);
-		cout << "H3" << endl;
 	}
 
 	//--------------------------------------------------------------------------
@@ -228,7 +224,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                   }
                   else if (index2>0){
                       AO='o';
-                      cout<<index2<<endl;
+                      //cout<<index2<<endl;
                       conds_str[num++]=Cond_Info.substr(0,index2);
                       Cond_Info=Cond_Info.substr(index2+1);
                   } 
@@ -316,7 +312,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                   }
                   else if (index2>0){
                       AO='o';
-                      cout<<index2<<endl;
+                      //cout<<index2<<endl;
                       conds_str[num++]=Cond_Info.substr(0,index2);
                       Cond_Info=Cond_Info.substr(index2+1);
                   } 
@@ -333,7 +329,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			    Delete_With_Where(DB_Name,Table_Name,conds,num,nodes,0,AO,bufferInfo);		
 		}
     else cout<<"error: invalid type of insruction!"<<endl;
-    cout<<DB_Name<<endl;
+    //cout<<DB_Name<<endl;
 }
 
 conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
