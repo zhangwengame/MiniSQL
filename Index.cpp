@@ -45,7 +45,7 @@ void encodeNode(string database,string table_name,index_info& inform,const Node&
 	else if (inform.type==1)
 		v_width=10;
 	else if (inform.type==2)
-		v_width=5;  //char*为5个字符
+		v_width=5; 
 	else
 		cout<<"Error type of key!"<<endl;
 	block_num=p.node_num;
@@ -61,7 +61,7 @@ void encodeNode(string database,string table_name,index_info& inform,const Node&
 		charNum=1+4+p.value.size()*v_width+p.record.size()*5+9;
 	else
 		charNum=1+4+p.value.size()*v_width+p.record.size()*3+9;
-    cout<<"charNum"<<charNum<<endl;
+    //cout<<"charNum"<<charNum<<endl;
 	//s=new char(charNum+1);
 	//memset(s,0,sizeof(s));
 	//cout<<"ok"<<endl;
@@ -71,7 +71,7 @@ void encodeNode(string database,string table_name,index_info& inform,const Node&
 		strcpy(s,tmp);
 		//cout<<tmp<<endl;
 		//cout<<s<<endl;
-		cout<<"Record amount:"<<p.value.size()<<endl;
+		//cout<<"Record amount:"<<p.value.size()<<endl;
 		for(i=0;i<p.value.size();i++){
 			cout<<p.record[i]<<p.value[i]<<endl;
 		}
@@ -81,10 +81,10 @@ void encodeNode(string database,string table_name,index_info& inform,const Node&
 				case 0:sprintf(tmp,"%05d%06d",p.record[i],(int)p.value[i]);break;
 				case 1:sprintf(tmp,"%05d%10.4f",p.record[i],(float)p.value[i]);break;
 				case 2:sprintf(tmp,"%05d%5s",p.record[i],int_char(p.value[i]).c_str());cout<<"length"<<int_char(p.value[i]).length()<<endl;break;
-				default: cout<<"error type of key";break;
+				default: cout<<"Error type of key";break;
 			}
 			//sprintf(tmp,"%05d%c",p.record[i],p.value[i]);
-			cout<<p.value[i]<<endl;
+			//cout<<p.value[i]<<endl;
 			strcat(s,tmp);
 		}
 		//cout<<s<<endl;
@@ -98,7 +98,7 @@ void encodeNode(string database,string table_name,index_info& inform,const Node&
 				case 0:sprintf(tmp,"%03d%06d",p.record[i],(int)p.value[i]);break;
 				case 1:sprintf(tmp,"%03d%10.4f",p.record[i],(float)p.value[i]);break;
 				case 2:sprintf(tmp,"%03d%5s",p.record[i],int_char(p.value[i]).c_str());break;
-				default: cout<<"error type of key";break;
+				default: cout<<"Error type of key";break;
 			}
 			strcat(s,tmp);
 		}
@@ -109,13 +109,13 @@ void encodeNode(string database,string table_name,index_info& inform,const Node&
 	sprintf(tmp,"%03d%03d%03d",p.pre,p.suc,p.parent);
 	//cout<<tmp<<endl;
 	strcat(s,tmp);
-	cout<<"The result of index"<<s<<endl;
+	//cout<<"The result of index"<<s<<endl;
 	//delete b[block_num].cBlock;//=new char(charNum);
 	//memset(b[block_num].cBlock,0,sizeof(b[block_num].cBlock));
 	strcpy(b->cBlock,s);
 	b->dirtyBit=1;
 	writeBlock(database,b);
-	cout<<"Encode ok"<<endl;
+	//cout<<"Encode ok"<<endl;
 	//delete s;
 }
 Node parseNode(string database,string table_name,index_info& inform,int block_num,int type,bufferInfo *run){
@@ -136,12 +136,12 @@ Node parseNode(string database,string table_name,index_info& inform,int block_nu
 	}
 	else{
         p.node_num=block_num;
-		int charNum=strlen(b->cBlock); //读取这块的内容
+		int charNum=strlen(b->cBlock);
 		p.pre=(b->cBlock[charNum-9]-'0')*100+(b->cBlock[charNum-8]-'0')*10+b->cBlock[charNum-7]-'0';
 		p.suc=(b->cBlock[charNum-6]-'0')*100+(b->cBlock[charNum-5]-'0')*10+b->cBlock[charNum-4]-'0';
         p.parent=(b->cBlock[charNum-3]-'0')*100+(b->cBlock[charNum-2]-'0')*10+b->cBlock[charNum-1]-'0';
 		//cout<<b[t].cBlock<<endl;
-		cout<<"parseNode:"<<"block_num"<<block_num<<"parent"<<p.parent<<"pre"<<p.pre<<"suc"<<p.suc<<endl;
+		//cout<<"parseNode:"<<"block_num"<<block_num<<"parent"<<p.parent<<"pre"<<p.pre<<"suc"<<p.suc<<endl;
 		if (b->cBlock[0]=='!')
 		{
             p.leaf=true;
@@ -215,8 +215,8 @@ int search_one(string database,string table_name,index_info& inform,int block_nu
 	}
 	//cout<<strlen((char*)inform.value)<<endl;
 	//cout<<"value"<<int_char((char_int((char*)inform.value))).c_str()<<endl;
-	cout<<"value"<<char_int((char*)inform.value)<<endl;
-	cout<<"node_num"<<tmp.node_num<<tmp.leaf<<endl;
+	//cout<<"value"<<char_int((char*)inform.value)<<endl;
+	//cout<<"node_num"<<tmp.node_num<<tmp.leaf<<endl;
 	//value=*(float*)inform.value;
 	//cout<<"record size"<<tmp.record.size()<<endl;
 	if (tmp.leaf){
@@ -248,57 +248,6 @@ int search_one(string database,string table_name,index_info& inform,int block_nu
 		return search_one(database,table_name,inform,tmp.record[i],run);
 	}
 }
-/*void search_many(string database,string table_name,int &start,int type,struct index_info& inform,int block_num){
-	int i,t=block_num;
-	int num,result=0;
-	float value;
-	Node tmp=parseNode(block_num,k_type);
-	num=tmp.value.size();
-	switch (k_type){
-		case 0:value=*(int*)inform.value;break;
-		case 1:value=*(float*)inform.value;break;
-		case 2:value=*(char*)inform.value;break;
-	}
-	cout<<"value"<<value<<endl;
-	cout<<"node_num"<<tmp.node_num<<tmp.leaf<<endl;
-	value=*(float*)inform.value;
-	//3 <
-	//3 <=
-	//1 >
-	//2 >=
-	//cout<<"record size"<<tmp.record.size()<<endl;
-	if (tmp.leaf){
-		t=tmp.node_num;
-		for(i=0;i<tmp.value.size();i++){
-			switch (type){
-				case 3:if (value>=tmp.value[i]) start=t;inform.offset=i-1;return;
-				case 4:if (value>tmp.value[i]) start=t;inform.offset=i-1;return;
-				case 1:if (value<=tmp.value[i]) start=t;inform.offset=i-1;return;
-				case 2:if (value<tmp.value[i]) start=t;inform.offset=i-1;return;
-				default:cout<<"Wrong type!"<<endl;break;
-			}
-            
-		}
-		start=0;
-		cout<<"No index range result"<<endl;
-		return;
-
-	}
-	else //?
-	{
-
-		//num=(b[t].cBlock[1]-'0')*1000+(b[t].cBlock[2]-'0')*100+(b[t].cBlock[3]-'0')*10+b[t].cBlock[4]-'0';
-        //cout<<"Record Size"<<tmp.record[1]<<endl;
-		for(i=0;i<num;i++){
-			if (value<tmp.value[i])
-			{
-				search_many(database,table_name,inform,tmp.record[i]);
-			}
-		}
-		//cout<<"I'm here"<<tmp.value[0]<<tmp.record[1]<<endl;
-		search_many(database,table_name,inform,tmp.record[i]);
-	}
-}*/
 float split_child(string database,string table_name,index_info& inform,Node& target,Node& new_target,bufferInfo *run){
 	int i,j;
  	float mid;
@@ -314,7 +263,7 @@ float split_child(string database,string table_name,index_info& inform,Node& tar
 	new_target.pre=0;
 	new_target.suc=0;
 	new_target.parent=0;
- 	cout<<"mid"<<mid<<endl;
+ 	//cout<<"mid"<<mid<<endl;
  	if (target.leaf){
  		for (j = capacity/2; j < capacity; ++j){
  			new_target.value.push_back(target.value[j]);
@@ -332,12 +281,12 @@ float split_child(string database,string table_name,index_info& inform,Node& tar
 			new_target.record.push_back(target.record[j]);
 			new_target.value.push_back(target.value[j]);
  		}
- 		new_target.record.push_back(target.record.back()); //最后一个没被考虑进去
+ 		new_target.record.push_back(target.record.back()); 
  		for(j=capacity/2+1;j<capacity;j++){
  			target.record.pop_back();
  			target.value.pop_back();
  		}
-		//new_target.record.push_back(target.record.back()); //最后一个没被考虑进去
+		//new_target.record.push_back(target.record.back()); 
 		//b[target.record[capacity]].parent=new_target.node_num;
 		new_target.leaf=false;
  		target.record.pop_back();
@@ -355,8 +304,8 @@ void insert_parent(string database,string table_name,index_info& inform,void *pp
 	float mid,a;
 	blockInfo *b;
 	a=*(float*)pp;
-	cout<<"a:"<<a<<endl;
-	if (p==0){ //向上合并的是root
+	//cout<<"a:"<<a<<endl;
+	if (p==0){ 
 		b=readBlock(database,table_name,inform.index_name,0, 1, run);
 		int new_block=(b->cBlock[0]-'0')*100+(b->cBlock[1]-'0')*10+(b->cBlock[2]-'0');
 		inform.root=(b->cBlock[4]-'0')*100+(b->cBlock[5]-'0')*10+(b->cBlock[6]-'0');
@@ -372,14 +321,14 @@ void insert_parent(string database,string table_name,index_info& inform,void *pp
 		tmp.parent=0;
  //p=b[root].nextNew;
  //root=p;
- //p->child_ptr[0]=lchild; //做过根节点的都是false
+ //p->child_ptr[0]=lchild; 
 		tmp.record.push_back(lchild.node_num);
  //p->child_ptr[1]=rchild;
 		tmp.record.push_back(rchild.node_num);
 
  //lchild->parent=p;
 		//b=readBlock("D_1", "Balance","account" ,lchild.node_num, 1, run);
-		lchild.parent=p; //两个修改的块，因为之前申请的新块改动已经提交
+		lchild.parent=p; 
  //rchild->parent=p;
 		rchild.parent=p;
  //p->data[0]=a;
@@ -414,7 +363,7 @@ void insert_parent(string database,string table_name,index_info& inform,void *pp
  		encodeNode(database,table_name,inform,tmp,run);
  		if (tmp.value.size()==capacity){
  			Node np=Node();
- 			cout<<"Parent Split"<<endl;
+ 			cout<<"The interior node of Index Split!"<<endl;
  			mid=split_child(database,table_name,inform,tmp,np,run);
  			insert_parent(database,table_name,inform,&mid,tmp.parent,tmp,np,run);
  			for (j=0;j<np.record.size();j++){
@@ -442,27 +391,28 @@ void insert_one(string database,string table_name,index_info& inform,int block_n
 		case 1:k=*(float*)inform.value;break;
 		case 2:k=char_int((char*)inform.value);break;
 	}
-	cout<<"k"<<k<<endl;
+	//cout<<"k"<<k<<endl;
 	if (new_block==inform.root){
 		cout<<"Start to build index..."<<endl;
-		cout<<"root"<<inform.root<<endl;
+		//cout<<"root"<<inform.root<<endl;
 		new_block++;
     	sprintf(b->cBlock,"%03d%c%03d",new_block,'#',inform.root);
-		cout<<"Block0:"<<b->cBlock<<endl;
+		//cout<<"Block0:"<<b->cBlock<<endl;
 		b->dirtyBit=1;
 		writeBlock(database,b);
 		b=readBlock(database, table_name,inform.index_name,inform.root, 1, run);
 		strcpy(b->cBlock,"#");
-		cout<<"Block1:"<<b->cBlock<<endl;
+		//cout<<"Block1:"<<b->cBlock<<endl;
 		b->dirtyBit=1;
 		writeBlock(database,b);
 	}
 	position=search_one(database,table_name,inform,inform.root,run);
 	Node tmp=parseNode(database,table_name,inform,position,inform.type,run);
 	b=readBlock(database, table_name,inform.index_name,position, 1, run);
-	cout<<"position"<<position<<' '<<b->cBlock<<endl;
+	//cout<<"position"<<position<<' '<<b->cBlock<<endl;
 	if (inform.offset>0){
 		cout<<"index existed"<<endl;
+		return;
 	}
 	else if (inform.offset==0)
 	{
@@ -479,24 +429,24 @@ void insert_one(string database,string table_name,index_info& inform,int block_n
 		}
 		//cout<<"tmpvalue1"<<tmp.value[1]<<endl;
 		tmp.value[i]=k;
-		tmp.record[i]=line_num; //这个地方没理解行号应该怎么编？ 应该是在record中拿的
+		tmp.record[i]=line_num; 
 		encodeNode(database,table_name,inform,tmp,run);
 		if (tmp.value.size()>=capacity){
 			Node np=Node();
-			cout<<"Split"<<endl;
+			cout<<"Leaf Node Split"<<endl;
 			mid=split_child(database,table_name,inform,tmp,np,run);
 			//cout<<"mid"<<(int)mid<<endl;
 			insert_parent(database,table_name,inform,&mid,tmp.parent,tmp,np,run);
 		}
 	}
     //cout<<tmp.leaf<<endl;
-	for(int i=0;i<tmp.value.size();i++)
-		cout<<tmp.record[i]<<tmp.value[i]<<endl;
+	//for(int i=0;i<tmp.value.size();i++)
+	//	cout<<tmp.record[i]<<tmp.value[i]<<endl;
 }
 void delete_entry(string database,string table_name,index_info& inform,void* pp,int position,int offset,bufferInfo *run){
 	int i;
 	//char k;
-	Node p; //当前正在操作的节点
+	Node p;
 	blockInfo *b;
 	float k,mid;
 	k=*(float*)pp;
@@ -516,30 +466,29 @@ void delete_entry(string database,string table_name,index_info& inform,void* pp,
 			p.record[j]=p.record[j+1];
 		}
 	p.value.pop_back();
-	p.record.pop_back(); //去掉k的位置 考虑了是从叶子还是内部节点删除的不同
+	p.record.pop_back(); 
  	if (position==inform.root&&p.value.size()==0){
-		// 处理当前节点变成一个废块，在需要新块时优先考虑这些
  		inform.root=p.record[0]; //free the pre-root
- 		cout<<"The new root is "<<inform.root<<endl;
+ 		//cout<<"The new root is "<<inform.root<<endl;
  		b=readBlock(database,table_name,inform.index_name,0,1, run);
  		int new_block=(b->cBlock[0]-'0')*100+(b->cBlock[1]-'0')*10+(b->cBlock[2]-'0');
  		sprintf(b->cBlock,"%03d%c%03d",new_block,'#',inform.root);
  		b->dirtyBit=1;
  		writeBlock(database,b);
  		Node tmp=parseNode(database,table_name,inform,inform.root,inform.type,run);
- 		tmp.leaf=false;  //只有一层既是根也是
- 		cout<<"preparent"<<tmp.parent<<endl;
+ 		tmp.leaf=false;  
+ 		//cout<<"preparent"<<tmp.parent<<endl;
  		tmp.parent=0;
  		tmp.suc=0;
  		tmp.pre=0;
- 		cout<<"newparent"<<tmp.parent<<endl;
+ 		//cout<<"newparent"<<tmp.parent<<endl;
  		encodeNode(database,table_name,inform,tmp,run);
  		return;
  	}
  	else if (position==inform.root&&p.value.size()==1){
  		encodeNode(database,table_name,inform,p,run);
  	}
- 	else if (p.value.size()<capacity/2){ //需要调整
+ 	else if (p.value.size()<capacity/2){ 
  		if (p.pre!=0)
  			predessor=parseNode(database,table_name,inform,p.pre,inform.type,run);
  		else 
@@ -553,15 +502,16 @@ void delete_entry(string database,string table_name,index_info& inform,void* pp,
  		else if (successor.parent==p.parent)
  			predessor=p;
  		else{
- 			cout<<"肯定有哪里错了，不可能只有一个叶子节点"<<endl;
+ 		
+ 			cout<<"The strcture of index file is wrong!"<<endl;
  			return ;
  		}
  		int t=0,temp;
  		parent=parseNode(database,table_name,inform,p.parent,inform.type,run);
  		while(parent.record[t]!=predessor.node_num&&t<parent.value.size())
  			t++;
- 		k=parent.value[t]; //parent中处于分界位置的点
- 		if (predessor.value.size()+successor.value.size()<capacity){ //这里需要把后面那块删掉加入废块链表
+ 		k=parent.value[t]; 
+ 		if (predessor.value.size()+successor.value.size()<capacity){ 
  			if (p.leaf)
  				for(i=0;i<successor.value.size();i++){
  					predessor.value.push_back(successor.value[i]);
@@ -583,26 +533,26 @@ void delete_entry(string database,string table_name,index_info& inform,void* pp,
  				for(i=0;i<successor.value.size();i++){
  					predessor.value.push_back(successor.value[i]);
  				}
-			}// destroy successor 加入废块链表
+			}// 
 			predessor.suc=successor.suc;
 			if (successor.suc!=0){
 				Node next=parseNode(database,table_name,inform,successor.suc,inform.type,run);
 				next.pre=predessor.node_num;
-				encodeNode(database,table_name,inform,next,run); //合并的这种情况要考虑下一个块的pre
+				encodeNode(database,table_name,inform,next,run); //
 			}
 			encodeNode(database,table_name,inform,predessor,run);
  			delete_entry(database,table_name,inform,&k,predessor.parent,t,run);
  			if (predessor.value.size()==capacity){
  				Node np=Node();
- 				cout<<"Split"<<endl;
+ 				cout<<"The interior node Split!"<<endl;
  				mid=split_child(database,table_name,inform,predessor,np,run);
  				insert_parent(database,table_name,inform,&mid,predessor.parent,predessor,np,run);
  				//insert_parent(temp,predessor->parent,predessor,np);
  			}
 			//delete_block(successor.node_num);
 		}
-		else{ //合并超出容量 ps是否只考虑前面那个多的情况？
-			if (predessor.node_num==p.node_num) //前面那个缺
+		else{ //
+			if (predessor.node_num==p.node_num) //
 				if (!p.leaf){
 					//cout<<"It's here"<<endl;
 					//cout<<successor.value.front()<<endl;
@@ -634,7 +584,7 @@ void delete_entry(string database,string table_name,index_info& inform,void* pp,
  					successor.record.pop_back();
  					parent.value[t]=successor.value.front();
  				}
-			else if (successor.node_num==p.node_num){ //后面那个缺 
+			else if (successor.node_num==p.node_num){ //
  				if (!p.leaf){
  					successor.value.push_back(0);
  					successor.record.push_back(0);
@@ -677,15 +627,16 @@ void delete_entry(string database,string table_name,index_info& inform,void* pp,
 }
 void delete_one(string database,string table_name,index_info& inform,int block_num,bufferInfo *run){
 	int position;
-	Node p; //当前正在操作的节点
+	Node p; //
 	blockInfo *b;
 	b = readBlock(database,table_name,inform.index_name,block_num, 1, run);
 	inform.root=(b->cBlock[4]-'0')*100+(b->cBlock[5]-'0')*10+(b->cBlock[6]-'0');
-	position=search_one(database,table_name,inform,inform.root,run);//找到删除节点的叶子块
-	cout<<"position:"<<position<<endl;
-	cout<<"inform.offset:"<<inform.offset<<endl;
+	position=search_one(database,table_name,inform,inform.root,run);//
+	//cout<<"position:"<<position<<endl;
+	//cout<<"inform.offset:"<<inform.offset<<endl;
 	delete_entry(database,table_name,inform,inform.value,position,inform.offset,run);
 }
+/*
 int main(int argc, char const *argv[])
 {	
 
@@ -738,4 +689,4 @@ int main(int argc, char const *argv[])
 	//createIndex("database","table1","amount","index");
 	//while(1);
 	return 0;
-}
+}*/
