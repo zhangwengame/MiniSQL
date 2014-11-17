@@ -25,4 +25,5 @@ void dropDatabase(string DB_Name);
 int getRecordSum(string DB_Name, string Table_Name);
 void setRecordSum(string DB_Name, string Table_Name,int val);
 attrInfo *getAttrInfo(string DB_Name, string Table_Name, string Attr_Name);
+attrInfo *getAttrInfo(string DB_Name, string Table_Name, int Attr_No);
 #endif

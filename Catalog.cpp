@@ -396,7 +396,51 @@ attrInfo *getAttrInfo(string DB_Name, string Table_Name, string Attr_Name){
 	printf("ERROR: There is no such attr : %s\n", Attr_Name.c_str());
 	return NULL;
 }
-
+attrInfo *getAttrInfo(string DB_Name, string Table_Name, int Attr_No){
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fIn = fopen(path.c_str(), "r");
+	attrInfo *ret =NULL;
+	int Attrcount;
+	char name[25], c;
+	fscanf(fIn, "%d", &Attrcount);
+	if (Attr_No > Attrcount)
+	{
+		fclose(fIn);
+		return ret;
+	}
+	ret = new attrInfo;
+	fseek(fIn, 20 + 40 * (Attr_No-1), 0);
+	for (int j = 0; j < 20; j++)
+	{
+		name[j] = fgetc(fIn);
+		if (name[j] == 0)
+			break;
+	}
+	name[20] = 0;
+	ret->attrName = string(name);
+	fseek(fIn, 20 + 40 * (Attr_No - 1) + 23, 0);
+	c = fgetc(fIn);
+	ret->pri = c - '0';
+	c = fgetc(fIn);
+	ret->type = c - '0';
+	c = fgetc(fIn);
+	ret->index = c - '0';
+	if (ret->index == 1)
+	{
+		for (int j = 0; j < 14; j++)
+		{
+			name[j] = fgetc(fIn);
+			if (name[j] == 0)
+				break;
+		}
+		name[20] = 0;
+		ret->indexName = string(name);
+	}
+	else
+		ret->indexName = "";
+	fclose(fIn);
+	return ret;
+}
 int getRecordSum(string DB_Name, string Table_Name)
 {
 	if (!existTable(DB_Name, Table_Name))
