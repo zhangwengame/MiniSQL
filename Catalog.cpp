@@ -171,7 +171,7 @@ void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, 
 		printf("ERROR: Attribute name confilcts!\n");
 		return;
 	}
-	int Attrcount;
+	int Attrcount;	
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
 	FILE *fUpdate = fopen(path.c_str(), "r+");
 	fscanf(fUpdate, "%d", &Attrcount);

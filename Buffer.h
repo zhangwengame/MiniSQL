@@ -1,9 +1,9 @@
 #ifndef _BUFFER_H 
 #define _BUFFER_H
 
-#define BLOCK_LEN			4096	// the size of one block
-#define MAX_FILE_ACTIVE 	5		// limit the active files in the buffer
-#define MAX_BLOCK			40		// the max number of the blocks
+#define BLOCK_LEN			4096	
+#define MAX_FILE_ACTIVE 	5		
+#define MAX_BLOCK			40		
 
 #include <fstream>
 #include <set>
@@ -21,13 +21,13 @@ public:
 	bufferInfo() :fileHandle(NULL), blockHandle(NULL),fileCount(0),blockCount(0){};
 };
 struct blockInfo  {
-	int blockNum;	// the block number of the block, which indicate it when it be newed
-	bool dirtyBit;     // 0 -> flase£¬ 1 -> indicate dirty, write back
-	blockInfo *next;  	// the pointer point to next block 
-	fileInfo *file;     	// the pointer point to the file, which the block belongs to
-	char *cBlock;	   	// the array space for storing the records in the block in buffer
-	time_t iTime;		// it indicate the age of the block in use 
-	int lock;// prevent the block from replacing
+	int blockNum;	
+	bool dirtyBit;     
+	blockInfo *next;  	
+	fileInfo *file;     	
+	char *cBlock;	   
+	time_t iTime;		
+	int lock;
 	blockInfo()
 	{
 		cBlock = new char[BLOCK_LEN];
@@ -38,15 +38,12 @@ struct blockInfo  {
 	}
 };
 struct fileInfo  {
-	int type;				// 0-> data file£¬ 1 -> index file
-	string fileName;		// the name of the file
-	string dataBase;       // dataBase it belongs to
+	int type;				
+	string fileName;		
+	string dataBase;       
 	string attrName;
-//	int recordAmount;		// the number of record in the file
-//	int freeNum;			// the free block number which could be used for the file
-//	int recordLength;		// the length of the record in the file
-	fileInfo *next;			// the pointer points to the next file
-	blockInfo *firstBlock;	// point to the first block within the file
+	fileInfo *next;			
+	blockInfo *firstBlock;	
 	blockInfo *lastBlock;
 	std::set<int> blockSet;
 	fileInfo(string dataBase, string fileName, int type) :

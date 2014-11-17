@@ -19,6 +19,7 @@ void main()
 	{
 		cout<<"MiniSQL-->> ";
 		SQL=Interpreter();
+		cout << "main" << SQL << endl;
 		API_Module(SQL,run);
 	}
 	//createDatabase("D_1");
