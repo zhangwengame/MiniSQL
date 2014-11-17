@@ -6,6 +6,7 @@ int record_Num=0;
 
 void API_Module(string SQL, bufferInfo* bufferInfo)
 {
+	cout << "API"<<SQL << endl;
 	string Type,Attr,Index_Name,Attr_Name,Condition,index_name[32],Cond_Info;
 	string attr_list[10];
 	char* asplit=".";
@@ -29,7 +30,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 	//创建数据表
 	else if(Type=="01")
 	{
-        if (!existDatabase(DB_Name)) {
+		if (!existDatabase(DB_Name)) {
                  cout<<"error: This database doesn't exist!"<<endl;
             }  
 		else
@@ -48,21 +49,13 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                 if (Attr[0]=='!'){
                     primary=1;
                     Attr=Attr.substr(1);
-                    index--;
-                }
-                if (Attr[0]=='@'){
-                    primary=1;
-                    Attr=Attr.substr(1);
-                    index--;
                 }
                 else primary=0;
                 if (attrOrder(DB_Name,Table_Name,Attr)!=0) {
                     cout<<"error: You cannot create the same attribute again!"<<endl;
                     return;
                 }
-                cout<<Table_Name<<" "<<Attr.substr(0,index-1)<<" "<<primary<<endl;
-                cout<<Attr[index-1]<<endl;
-                switch (Attr[index-1]){
+                switch (Attr[index]){
                     case 'i':
                         addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,0);
                         break;
@@ -92,13 +85,13 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 		else
 		{
 			index=SQL.find(',');
-			Index_Name=SQL.substr(0,index);
+			Table_Name=SQL.substr(0,index);
 			index++;
 			SQL=SQL.substr(index);
 			index=SQL.find(',');
-			Table_Name=SQL.substr(0,index);
-			Attr_Name=SQL.substr(index+1);
-			cout<<Table_Name<<" "<<Attr_Name<<" "<<Index_Name<<endl;
+			Attr_Name=SQL.substr(0,index);
+			Index_Name=SQL.substr(index+1);
+			//cout<<Table_Name<<" "<<Attr_Name<<" "<<Index_Name<<endl;
 			createIndex(DB_Name,Table_Name,Attr_Name,Index_Name);	
 		}
 	}
@@ -159,7 +152,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 		    index1=SQL.find(',');
 			Attr=SQL.substr(0,index1);
 			index1++;
-			Table_Name=SQL.substr(index1,SQL.length()-index1);
+			SQL=SQL.substr(index1,SQL.length()-index1);
 			if(Table_Name.find(' ')!=-1)
 				cout<<"error: can not select from more than one table!"<<endl;
 			else
@@ -203,26 +196,21 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			Cond_Info=SQL.substr(index2,SQL.length()-index2);
 			
 			num=0;
-			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1)){
-                  index1=Cond_Info.find('&');
-                  index2=Cond_Info.find('|');
-                  if (index1>0){
+			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1))
+                  if (Cond_Info.find('&')>0){
                       AO='a';
-                      conds_str[num++]=Cond_Info.substr(0,index1);
-					  Cond_Info=Cond_Info.substr(index1+1);
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('&'));
+					  Cond_Info=Cond_Info.substr(Cond_Info.find('&')+1,Cond_Info.length()-Cond_Info.find('&')-1);
                   }
-                  else if (index2>0){
+                  else if (Cond_Info.find('|')>0){
                       AO='o';
-                      cout<<index2<<endl;
-                      conds_str[num++]=Cond_Info.substr(0,index2);
-                      Cond_Info=Cond_Info.substr(index2+1);
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('|'));
                   } 
-            }
 			conds_str[num++]=Cond_Info;
             
             for (i=0;i<num;i++){
                 conds[i]=Str_To_Conds(DB_Name,Table_Name,conds_str[i]);
-				cout<<conds[i].left<<" "<<conds[i].type<<" "<<conds[i].right1<<endl;
+				cout<<conds[i].left<<" "<<conds[i].type<<" "<<conds[i].right0<<endl;
 			}
             
 			if(Table_Name.find(' ')!=-1)
@@ -262,7 +250,6 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                  return;
              } 
              Attr=SQL.substr(index+1);
-             record_Num=getRecordSum(DB_Name,Table_Name);
              Insert_Item(DB_Name,Table_Name,Attr,record_Num);
         }
         
@@ -281,21 +268,16 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
             } 
             Cond_Info=SQL.substr(index+1);
             num=0;
-			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1)){
-                  index1=Cond_Info.find('&');
-                  index2=Cond_Info.find('|');
-                  if (index1>0){
+			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1))
+                  if (Cond_Info.find('&')>0){
                       AO='a';
-                      conds_str[num++]=Cond_Info.substr(0,index1);
-					  Cond_Info=Cond_Info.substr(index1+1);
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('&'));
+					  Cond_Info=Cond_Info.substr(Cond_Info.find('&')+1,Cond_Info.length()-Cond_Info.find('&')-1);
                   }
-                  else if (index2>0){
+                  else if (Cond_Info.find('|')>0){
                       AO='o';
-                      cout<<index2<<endl;
-                      conds_str[num++]=Cond_Info.substr(0,index2);
-                      Cond_Info=Cond_Info.substr(index2+1);
+                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('|'));
                   } 
-            }
 			conds_str[num++]=Cond_Info;
 			
             for (i=0;i<num;i++){
@@ -314,11 +296,49 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
     conditionInfo conds;
     attrInfo *ai;
     int index=-1;
-    char c;
     
     conds.symbol=0;
     index=str.find('<');
-    c=str[index+1];
+    if (index>0){
+        conds.left=str.substr(0,index);
+        ai=getAttrInfo(DB_Name,Table_Name,conds.left);
+        
+        if (attrOrder(DB_Name,Table_Name,str.substr(index+1))>0)
+            conds.type=-attrOrder(DB_Name,Table_Name,str.substr(index+1));
+        if (attrOrder(DB_Name,Table_Name,str.substr(index+2))>0)
+            conds.type=-attrOrder(DB_Name,Table_Name,str.substr(index+2));
+        
+        switch (conds.type){
+            case 0:  
+                 conds.right0=atoi((str.substr(index+2)).c_str());
+                 break;
+            case 1:
+                 strcpy(conds.right1,(str.substr(index+2)).c_str());
+                 break;
+            case 2:
+                 conds.right2=atoi((str.substr(index+2)).c_str());
+                 break;
+        }
+        if (str[index+1]=='=')
+            conds.symbol=-1;
+        else if (str[index+1]=='>')
+            conds.symbol=3;
+        else {
+            switch (ai->type){
+            case 0:  
+                 conds.right0=atoi((str.substr(index+1)).c_str());
+                 break;
+            case 1:
+                 strcpy(conds.right1,(str.substr(index+1)).c_str());
+                 break;
+            case 2:
+                 conds.right2=atoi((str.substr(index+1)).c_str());
+                 break;
+            }
+            conds.symbol=-2;
+        }
+    }
+    index=str.find('>');
     if (index>0){
         conds.left=str.substr(0,index);
         ai=getAttrInfo(DB_Name,Table_Name,conds.left);
@@ -340,52 +360,10 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
                  conds.right2=atoi((str.substr(index+2)).c_str());
                  break;
         }
-        if (c=='=')
-            conds.symbol=-1;
-        else if (c=='>')
-            conds.symbol=3;
-        else {
-            switch (conds.type){
-            case 0:  
-                 conds.right0=atoi((str.substr(index+1)).c_str());
-                 break;
-            case 1:
-                 strcpy(conds.right1,(str.substr(index+1)).c_str());
-                 break;
-            case 2:
-                 conds.right2=atoi((str.substr(index+1)).c_str());
-                 break;
-            }
-            conds.symbol=-2;
-        }
-    }
-    index=str.find('>');
-    c=str[index+1];
-    if ((index>0)&&(conds.symbol!=3)){
-        conds.left=str.substr(0,index);
-        ai=getAttrInfo(DB_Name,Table_Name,conds.left);
-        conds.type=ai->type;
-        
-        if (attrOrder(DB_Name,Table_Name,str.substr(index+1))>0)
-            conds.type=-attrOrder(DB_Name,Table_Name,str.substr(index+1));
-        if (attrOrder(DB_Name,Table_Name,str.substr(index+2))>0)
-            conds.type=-attrOrder(DB_Name,Table_Name,str.substr(index+2));
-        
-        switch (conds.type){
-            case 0:  
-                 conds.right0=atoi((str.substr(index+2)).c_str());
-                 break;
-            case 1:
-                 strcpy(conds.right1,(str.substr(index+2)).c_str());
-                 break;
-            case 2:
-                 conds.right2=atoi((str.substr(index+2)).c_str());
-                 break;
-        }
-        if (c=='=')
+        if (str[index+1]=='=')
             conds.symbol=1;
         else {
-            switch (conds.type){
+            switch (ai->type){
             case 0:  
                  conds.right0=atoi((str.substr(index+1)).c_str());
                  break;
@@ -396,46 +374,28 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
                  conds.right2=atoi((str.substr(index+1)).c_str());
                  break;
             }
-            conds.symbol=2;
         }
+            conds.symbol=2;
     }
-    if (conds.symbol==0){
-        index=str.find('=');
-        conds.left=str.substr(0,index);
-        ai=getAttrInfo(DB_Name,Table_Name,conds.left);
-        conds.type=ai->type;
-        switch (conds.type){
-            case 0:  
-                 conds.right0=atoi((str.substr(index+1)).c_str());
-                 break;
-            case 1:
-                 strcpy(conds.right1,(str.substr(index+1)).c_str());
-                 break;
-            case 2:
-                 conds.right2=atoi((str.substr(index+1)).c_str());
-                 break;
-            }
-    }
+    
     return conds;
 }
 
-int main(){
+/*int main(){
     bufferInfo *run;
     run=new bufferInfo;
     //addAttr("D_1", "Balance", "ele1", 8, 0, 1);
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
-    //API_Module("20name.salary,t1",run);
-    API_Module("21name.salary,t1",run);
     //API_Module("01Balance,ele1.ele2.ele3");
     //API_Module("30Balance,11,22,33");
     //API_Module("30Balance,14,15,16");
-	//API_Module("21*,Balance,ele1<ele2&ele3>34",run);
+	API_Module("21*,Balance,ele1<ele2&ele3>34",run);
 	//API_Module("40Balance,ele1>0&elem2>0");
 	//API_Module("20*,Balance",run);
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
 	while (1);
-}
+}*/
 
 
