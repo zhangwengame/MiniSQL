@@ -3,18 +3,44 @@
  
 //void Close_Database(string DB_Name,bool closetype);
 //void Close_File(string DB_Name,string filename,int filetype,bool closetype);
-void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num){
-    bufferInfo *run;
+void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,bufferInfo *bufferInfo){
     char content[128];
-    int start,i;
+    int start,i,bi,index,check=1;
     blockInfo *head;
+    string one;
+    attrInfo *ai;
+    conditionInfo cond[10];
+    attr_info print[32]; 
     
-	run= new bufferInfo;
-    head=readBlock(DB_Name,Table_Name,"",0,0,run);
+    bi=record_Num/32;
+    head=readBlock(DB_Name,Table_Name,"",bi,0,bufferInfo);
     if (head->cBlock!=NULL)
        cout<<Attr<<endl;
-    start=128*record_Num;
+    start=128*record_Num-4096*bi;
     strncpy(content,Attr.c_str(),Attr.length());
+    
+    index=Attr.find(',');
+    i=1;
+    while (index>0){
+        one=Attr.substr(0,index);
+        ai=getAttrInfo(DB_Name,Table_Name,i);
+        if (ai==NULL) break;
+        if (ai->pri==1){
+            cond[0].left=ai->attrName;
+            cond[0].symbol=0;
+            cond[0].right0=atoi(one.c_str());
+            cond[0].type=0;
+            Select_With_Where(DB_Name,Table_Name,cond,1,'a',print,0,1,bufferInfo,0,check);
+            if (check==0){
+                cout<<"error: It voilates the constrains of primary key!"<<endl;
+                return;
+            }
+        }
+        Attr=Attr.substr(index+1);
+        index=Attr.find(',');
+        i++;
+    }
+            
     for (i=Attr.length();i<127;i++)
         content[i]=' ';
     content[127]=';';
@@ -185,7 +211,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
         need[i]=print[i].num;
     
     record_Num=getRecordSum(DB_Name,Table_Name);
-    for (bi=0;bi<(int)(record_Num/32-0.01);bi++){
+    for (bi=0;bi<=(int)(record_Num/32-0.01);bi++){
         head=readBlock(DB_Name,Table_Name,"",bi,0,bufferInfo);
         strcpy(block,head->cBlock);
         line=strtok(block,lsplit);
@@ -221,7 +247,7 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
 }
 
 void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,
-                              attr_info print[32],int Count,int all,bufferInfo *bufferInfo){
+                              attr_info print[32],int Count,int all,bufferInfo *bufferInfo,int use,int &check){
     blockInfo *head,*ptr;
     int need[10],i,j,bi,li,lnum,en,record_Num;
     char *line,*detail[10],*elem,*line_c[100];
@@ -231,7 +257,7 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
     for (i=0;i<Count;i++)
         need[i]=print[i].num;
     record_Num=getRecordSum(DB_Name,Table_Name);
-    for (bi=0;bi<(int)(record_Num/32-0.01);bi++){
+    for (bi=0;bi<=(int)(record_Num/32-0.01);bi++){
         head=readBlock(DB_Name,Table_Name,"",bi,0,bufferInfo);
         strcpy(block,head->cBlock);
         line=strtok(block,lsplit);
@@ -255,7 +281,7 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                 elem=strtok(NULL,esplit);
             }
             en=i-1;
-            if (true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,count,cond)){ 
+            if ((true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,count,cond))&&(use==1)){ 
                 if (1==all)
                 for (i=1;i<=en;i++)
                     printf("%s\t",detail[i]);
@@ -264,6 +290,8 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                     printf("%s\t",detail[need[i]]);
                 printf("\n");
             }
+            else if ((true==Confirm_To_Where(DB_Name,Table_Name,detail,conds,count,cond))&&(use==0))
+                 check=0;
         }
     } 
 }

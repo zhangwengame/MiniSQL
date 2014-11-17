@@ -33,7 +33,7 @@ struct conditionInfo{
 
 void Close_Database(string DB_Name,bool closetype);
 void Close_File(string DB_Name,string filename,int filetype,bool closetype);
-void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num);
+void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,bufferInfo *bufferInfo);
 void Print_Head(attr_info print[32],int count);
 void Print_To_Screen(string record,attr_info print[32],int count);
 void Select_Without_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,attr_info print[32],int Count,char cond);
@@ -47,7 +47,7 @@ bool Confirmc(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
 bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition);
 void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all,bufferInfo *bufferInfo);
 void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,attr_info print[32],
-     int Count,int all,bufferInfo *bufferInfo);
+     int Count,int all,bufferInfo *bufferInfo,int use,int &check);
 void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,
      char cond,bufferInfo *bufferInfo);
 void Delete_Without_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond);

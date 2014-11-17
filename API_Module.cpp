@@ -10,7 +10,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 	string attr_list[10];
 	char* asplit=".";
 	int index1,index2,end,length,offset,type,count,Count,i;
-	int attr_num[10],ind,index,num,primary;
+	int attr_num[10],ind,index,num,primary,check;
 	index_info nodes[32];
 	conditionInfo conds[10];
 	//attr_info print[32];
@@ -29,7 +29,6 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 	//创建数据表
 	else if(Type=="01")
 	{
-		cout<<"@@@"<<endl;
         if (!existDatabase(DB_Name)) {
                  cout<<"error: This database doesn't exist!"<<endl;
             }  
@@ -119,17 +118,19 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 
 	//--------------------------------------------------------------------------
 	//删除数据表
-	/*else if(Type=="11")
+	else if(Type=="11")
 	{
-		if(DB_Name.IsEmpty())
-			cout<<"error: you have not specified the database to be used!"<<endl;
+		if (!existDatabase(DB_Name)) {
+            cout<<"This database doesn't exist!"<<endl;
+            return;
+        }
 		else
 		{
 			Table_Name=SQL;
-			closeFile(DB_Name,Table_Name,0,false);
-			Drop_Table(Table_Name,DB_Name,index_name,count);
-			for(index=0;index<count;index++)
-				Close_File(DB_Name,index_name[index],1,false);
+			closeFile(NULL,DB_Name,Table_Name,"",0,bufferInfo);
+			dropTable(DB_Name,Table_Name);
+			//for(index=0;index<count;index++)
+				//Close_File(DB_Name,index_name[index],1,false);
 		}
 	}
 
@@ -137,22 +138,23 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 	//删除索引
 	else if(Type=="12")
 	{
-		if(DB_Name.IsEmpty())
-			cout<<"error: you have not specified the database to be used!"<<endl;
+		if (!existDatabase(DB_Name)) {
+            cout<<"This database doesn't exist!"<<endl;
+            return;
+        }
 		else
 		{
 			Index_Name=SQL;
-			//删除索引的内存
-			Close_File(DB_Name,Index_Name,1,false);
-			Drop_Index(Index_Name,DB_Name);
+			closeFile(NULL,DB_Name,Table_Name,Index_Name,0,bufferInfo);
+			dropIndex(DB_Name,Table_Name,Index_Name);
 		}
-	}*/
+	}
 
 	//--------------------------------------------------------------------------
 	//选择语句(无where子句)
 	else if(Type=="20")
 	{
-		if (!existDatabase(DB_Name)) {
+        if (!existDatabase(DB_Name)) {
                  cout<<"error: This database doesn't exist!"<<endl;
             } 
 		else
@@ -231,7 +233,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			else
 			{
 				if(Attr=="*"){
-                    Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,0,1,bufferInfo);
+                    Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,count,0,bufferInfo,1,check);
                 }
 				else {
                     count=0;
@@ -244,7 +246,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                     attr_list[count++]=Attr;
                     for (i=0;i<count;i++)
                         print[i].num=attrOrder(DB_Name,Table_Name,attr_list[i]);
-					Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,count,0,bufferInfo);
+					Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,count,0,bufferInfo,1,check);
 				}
 			}		
 		}
@@ -264,7 +266,8 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
              } 
              Attr=SQL.substr(index+1);
              record_Num=getRecordSum(DB_Name,Table_Name);
-             Insert_Item(DB_Name,Table_Name,Attr,record_Num);
+             cout<<record_Num<<endl;
+             Insert_Item(DB_Name,Table_Name,Attr,record_Num,bufferInfo);
              setRecordSum(DB_Name,Table_Name,record_Num);
         }
         
@@ -416,15 +419,18 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
     return conds;
 }
 
-/*int main(){
+int main(){
     bufferInfo *run;
     run=new bufferInfo;
+    int i;
     //addAttr("D_1", "Balance", "ele1", 8, 0, 1);
     //addAttr("D_1", "Balance", "ele2", 0, 0, 0);
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
-    API_Module("21*,t1,age>25&age<30",run);
-    //API_Module("01Balance,ele1.ele2.ele3");
-    //API_Module("30Balance,11,22,33");
+    //API_Module("21*,t1,age>25&age<30",run);
+    //API_Module("00D_1",run);
+    //API_Module("01Balance,ele1i.ele2i.ele3i.",run);
+    //for (i=1;i<=10;i++)
+        API_Module("30Balance,2,'naab',1",run);
     //API_Module("30Balance,14,15,16");
 	//API_Module("21*,Balance,ele1<ele2&ele3>34",run);
 	//API_Module("40Balance,ele1>0&elem2>0");
@@ -434,5 +440,3 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
 	while (1);
 }
 
-
-*/
