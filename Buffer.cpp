@@ -168,11 +168,12 @@ void closeFile(fileInfo* F, string DB_Name, string fileName,string attrName,int 
 	}
 	else
 		file = F;
-	blockInfo *block;
-	for (block = file->firstBlock; block != NULL; block = block->next)
+	blockInfo *block,*tmp;
+	for (block = file->firstBlock; block != NULL; block = tmp)
 	{
 		if (block->dirtyBit == 1)
 			writeBlock(DB_Name, block);
+		tmp = block->next;
 		block->next = bufferInfo->blockHandle;
 		bufferInfo->blockHandle = block;
 	}
