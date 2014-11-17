@@ -428,6 +428,7 @@ void insert_one(string database,string table_name,struct index_info& inform,int 
 	blockInfo *b;
 	float mid,k;
 	b = readBlock(database, table_name,inform.index_name,block_num, 1, run);
+	//cout << "index_name"<<inform.index_name <<"block_num"<< block_num << endl;
 	int new_block=(b->cBlock[0]-'0')*100+(b->cBlock[1]-'0')*10+(b->cBlock[2]-'0');
 	root=(b->cBlock[4]-'0')*100+(b->cBlock[5]-'0')*10+(b->cBlock[6]-'0');
 	switch (k_type){
@@ -545,7 +546,7 @@ void delete_entry(string database,string table_name,string index_name,void* pp,i
  		else if (successor.parent==p.parent)
  			predessor=p;
  		else{
- 			cout<<"肯定有哪里错了，不可能只有一个叶子节点"<<endl;
+ 			//cout<<"肯定有哪里错了，不可能只有一个叶子节点"<<endl;
  			return ;
  		}
  		int t=0,temp;

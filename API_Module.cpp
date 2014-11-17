@@ -1,6 +1,6 @@
 #include "API_Module.h"
 
-string DB_Name="D_1",Table_Name="Balance";
+string DB_Name,Table_Name="Balance";
 attr_info print[32];
 int record_Num=0; 
 
@@ -19,7 +19,8 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 	string conds_str[10];
 	Type.assign(SQL,0,2);
 	SQL.assign(SQL,2,SQL.length()-2);
-
+    
+    DB_Name=bufferInfo->currentDatabase;
 	//--------------------------------------------------------------------------
 	//创建数据库
 	if(Type=="00")
@@ -41,7 +42,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                 return;
             }
 			Attr=SQL.substr(index+1,SQL.length()-index-1);
-			cout<<Table_Name<<" "<<Attr<<endl;
+			//cout<<Table_Name<<" "<<Attr<<endl;
 			createTable(DB_Name,Table_Name);
 			index=Attr.find('.');
 			while (index>0){
@@ -50,8 +51,8 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                     Attr=Attr.substr(1);
                     index--;
                 }
-                if (Attr[0]=='@'){
-                    primary=1;
+                else if (Attr[0]=='@'){
+                    primary=2;
                     Attr=Attr.substr(1);
                     index--;
                 }
@@ -60,8 +61,8 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                     cout<<"error: You cannot create the same attribute again!"<<endl;
                     return;
                 }
-                cout<<Table_Name<<" "<<Attr.substr(0,index-1)<<" "<<primary<<endl;
-                cout<<Attr[index-1]<<endl;
+                //cout<<Table_Name<<" "<<Attr.substr(0,index-1)<<" "<<primary<<endl;
+                //cout<<Attr[index-1]<<endl;
                 switch (Attr[index-1]){
                     case 'i':
                         addAttr(DB_Name,Table_Name,Attr.substr(0,index-1),8,primary,0);
@@ -98,22 +99,33 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			index=SQL.find(',');
 			Table_Name=SQL.substr(0,index);
 			Attr_Name=SQL.substr(index+1);
-			cout<<Table_Name<<" "<<Attr_Name<<" "<<Index_Name<<endl;
+			//cout<<Table_Name<<" "<<Attr_Name<<" "<<Index_Name<<endl;
 			createIndex(DB_Name,Table_Name,Attr_Name,Index_Name);	
 		}
 	}
-
+    //--------------------------------------------------------------------------
+    //认定数据库
+    else if(Type=="03")
+	{
+         if (DB_Name.length()>0)
+             closeDatabase(DB_Name,bufferInfo);
+         bufferInfo->currentDatabase=SQL;
+    }
 	//--------------------------------------------------------------------------
 	//删除数据库
 	else if(Type=="10")
 	{
+        DB_Name=SQL;
+		cout << "H1" << endl;
         if (!existDatabase(DB_Name)) {
             cout<<"This database doesn't exist!"<<endl;
             return;
         }
+		cout << "H0" << endl;
         closeDatabase(DB_Name,bufferInfo);
-        if (SQL==DB_Name)
-           dropDatabase(DB_Name);
+		cout << "H2" << endl;
+        dropDatabase(DB_Name);
+		cout << "H3" << endl;
 	}
 
 	//--------------------------------------------------------------------------
@@ -225,7 +237,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
             
             for (i=0;i<num;i++){
                 conds[i]=Str_To_Conds(DB_Name,Table_Name,conds_str[i]);
-				cout<<conds[i].left<<" "<<conds[i].type<<" "<<conds[i].right1<<endl;
+				//cout<<conds[i].left<<" "<<conds[i].type<<" "<<conds[i].right1<<endl;
 			}
             
 			if(Table_Name.find(' ')!=-1)
@@ -233,7 +245,8 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			else
 			{
 				if(Attr=="*"){
-                    Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,count,0,bufferInfo,1,check);
+                              //cout<<"begin"<<endl;
+                    Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,0,1,bufferInfo,1,check);
                 }
 				else {
                     count=0;
@@ -254,7 +267,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
     //--------------------------------------------------------------------------
     // 插入元组 
     else if (Type=="30")
-         if (!existDatabase(DB_Name)) {
+        if (!existDatabase(DB_Name)) {
                  cout<<"error: This database doesn't exist!"<<endl;
             } 
 		else{
@@ -266,14 +279,21 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
              } 
              Attr=SQL.substr(index+1);
              record_Num=getRecordSum(DB_Name,Table_Name);
-             cout<<record_Num<<endl;
+             //cout<<record_Num<<endl;
              Insert_Item(DB_Name,Table_Name,Attr,record_Num,bufferInfo);
              setRecordSum(DB_Name,Table_Name,record_Num);
         }
         
+    //--------------------------------------------------------------------------    
+    // 无where的删除操作
+    else if (Type=="40"){
+         Table_Name=SQL;
+         Delete_No_Where(DB_Name,Table_Name,bufferInfo);
+    }
+    
     //--------------------------------------------------------------------------
     // 有where的删除操作 
-    else if (Type=="40")
+    else if (Type=="41")
         if (!existDatabase(DB_Name)) {
                  cout<<"error: This database doesn't exist!"<<endl;
             } 
@@ -286,21 +306,26 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
             } 
             Cond_Info=SQL.substr(index+1);
             num=0;
-			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1))
-                  if (Cond_Info.find('&')>0){
+			while ((Cond_Info.find('&')!=-1)||(Cond_Info.find('|')!=-1)){
+                  index1=Cond_Info.find('&');
+                  index2=Cond_Info.find('|');
+                  if (index1>0){
                       AO='a';
-                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('&'));
-					  Cond_Info=Cond_Info.substr(Cond_Info.find('&')+1,Cond_Info.length()-Cond_Info.find('&')-1);
+                      conds_str[num++]=Cond_Info.substr(0,index1);
+					  Cond_Info=Cond_Info.substr(index1+1);
                   }
-                  else if (Cond_Info.find('|')>0){
+                  else if (index2>0){
                       AO='o';
-                      conds_str[num++]=Cond_Info.substr(0,Cond_Info.find('|'));
+                      cout<<index2<<endl;
+                      conds_str[num++]=Cond_Info.substr(0,index2);
+                      Cond_Info=Cond_Info.substr(index2+1);
                   } 
+            }
 			conds_str[num++]=Cond_Info;
 			
             for (i=0;i<num;i++){
                 conds[i]=Str_To_Conds(DB_Name,Table_Name,conds_str[i]);
-				cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right0<<endl;
+				//cout<<conds[i].left<<" "<<conds[i].symbol<<" "<<conds[i].right0<<endl;
 			}
 			if(Table_Name.find(' ')!=-1)
 				cout<<"error: can not select from more than one table!"<<endl;
@@ -308,6 +333,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			    Delete_With_Where(DB_Name,Table_Name,conds,num,nodes,0,AO,bufferInfo);		
 		}
     else cout<<"error: invalid type of insruction!"<<endl;
+    cout<<DB_Name<<endl;
 }
 
 conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
@@ -418,7 +444,7 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
     }
     return conds;
 }
-
+/*
 int main(){
     bufferInfo *run;
     run=new bufferInfo;
@@ -428,15 +454,23 @@ int main(){
     //addAttr("D_1", "Balance", "ele3", 0, 0, 0);
     //API_Module("21*,t1,age>25&age<30",run);
     //API_Module("00D_1",run);
-    //API_Module("01Balance,ele1i.ele2i.ele3i.",run);
     //for (i=1;i<=10;i++)
-        API_Module("30Balance,2,'naab',1",run);
-    //API_Module("30Balance,14,15,16");
-	//API_Module("21*,Balance,ele1<ele2&ele3>34",run);
-	//API_Module("40Balance,ele1>0&elem2>0");
+        //API_Module("30Balance,2,'naab',1",run);
+    //createIndex("D_1","Balance","ele1","ele1");
+    API_Module("03D_1",run);
+    //API_Module("01t1,!ele1i.@ele2c.ele3i.ele4f.",run);
+    //API_Module("30t1,1,'Jim',20,2000.00",run);
+    //API_Module("30t1,2,'Kate',24,1800.00",run);
+    //API_Module("30t1,3,'John',34,4000.00",run);
+    //API_Module("30t1,4,'John',34,4000.00",run);
+    //API_Module("30Balance,15,'Jim',17",run);
+	//API_Module("21*,Balance,ele1>1",run);
+	//API_Module("21*,t1,ele1>1",run);
+	//API_Module("40t1",run);
+	API_Module("41t1,ele1<3",run);
 	//API_Module("20*,Balance",run);
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
 	while (1);
 }
-
+*/

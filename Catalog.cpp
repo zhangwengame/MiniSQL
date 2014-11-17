@@ -174,7 +174,13 @@ bool existDatabase(string DB_Name){
 	for (int i = 1; i <= DBcount; i++)
 	{
 		fseek(fIn, 20 * i, 0);
-		fscanf(fIn, "%s", name);
+		for (int j = 0; j < 20; j++)
+		{
+			name[j] = fgetc(fIn);
+			if (name[j] == 0)
+				break;
+		}
+		name[20] = 0;
 		if (string(name) == DB_Name)
 		{			
 			fclose(fIn);

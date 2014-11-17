@@ -12,13 +12,11 @@
 #include "Buffer.h"
 using namespace std;
 #include "Catalog.h"
+#include "Index.h"
 
 struct attr_info{
 	int num;
 	string name;
-};
-
-struct index_info{
 };
 
 struct conditionInfo{
@@ -48,6 +46,7 @@ bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
 void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all,bufferInfo *bufferInfo);
 void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,attr_info print[32],
      int Count,int all,bufferInfo *bufferInfo,int use,int &check);
+void Delete_No_Where(string DB_Name,string Table_Name,bufferInfo *bufferInfo);
 void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,
      char cond,bufferInfo *bufferInfo);
 void Delete_Without_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond);

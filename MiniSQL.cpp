@@ -17,6 +17,12 @@ void main()
 	cout<<endl<<endl;
 	while(1)
 	{
+		/*blockInfo *b;
+		b = readBlock("D_1", "t1", "", 0, 0, run);
+		if (b)
+			for (int i = 0; i < 4096; i++)
+				cout << b->cBlock[i];
+		cout << endl;*/
 		cout<<"MiniSQL-->> ";
 		SQL=Interpreter();
 		cout << "main" << SQL << endl;
