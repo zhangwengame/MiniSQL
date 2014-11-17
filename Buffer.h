@@ -16,6 +16,7 @@ struct bufferInfo{
 public:
 	fileInfo *fileHandle;
 	blockInfo *blockHandle;
+	string currentDatabase;
 	int fileCount;
 	int blockCount;
 	bufferInfo() :fileHandle(NULL), blockHandle(NULL),fileCount(0),blockCount(0){};
@@ -52,9 +53,9 @@ struct fileInfo  {
 		blockSet.clear();
 	};
 };	
-fileInfo* getfile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo);
+fileInfo* getFile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo);
 blockInfo* findBlock(bufferInfo* bufferInfo);
-blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo);
+blockInfo* getBlock(fileInfo* F, int blockNum, bufferInfo* bufferInfo);
 blockInfo* existBlock(fileInfo* file, int blockNum);
 fileInfo* existFile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo);
 blockInfo* readBlock(string DB_Name, string fileName, string attrName, int blockNum, int fileType, bufferInfo* bufferInfo);

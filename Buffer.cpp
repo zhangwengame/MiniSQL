@@ -1,6 +1,6 @@
 #include "Buffer.h"
 
-fileInfo* getfile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo){
+fileInfo* getFile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo){
 	fileInfo *ret;
 	ret = existFile(DB_Name, fileName, attrName, fileType, bufferInfo);
 	if (ret != NULL) return ret;
@@ -79,7 +79,7 @@ blockInfo*	findBlock(bufferInfo* bufferInfo)
 	return block;
 }
 
-blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
+blockInfo* getBlock(fileInfo* F, int blockNum, bufferInfo* bufferInfo){
 	fileInfo *file = F;
 	blockInfo *block;
 	SYSTEMTIME  time;
@@ -136,11 +136,11 @@ blockInfo* readBlock(string DB_Name, string fileName, string attrName, int block
 	GetSystemTime(&time);
 	file = existFile(DB_Name, fileName, attrName, fileType, bufferInfo);
 	if (file == NULL)
-		file = getfile(DB_Name, fileName, attrName, fileType, bufferInfo);
+		file = getFile(DB_Name, fileName, attrName, fileType, bufferInfo);
 	blockInfo *block;
 	block = existBlock(file, blockNum);
 	if (block == NULL)
-		block = getblock(file, blockNum, bufferInfo);
+		block = getBlock(file, blockNum, bufferInfo);
 	if (block != NULL)
 		block->iTime = time.wMilliseconds;
 	return block;
