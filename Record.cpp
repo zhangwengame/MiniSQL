@@ -38,6 +38,7 @@ void Select_With_Smaller_Cond(string DB_Name,string Table_Name,conditionInfo con
 
 bool Confirm_To_Where(string DB_Name,string Table_Name,char *detail[10],conditionInfo conds[10],int count,char cond){
      int i;
+     
      if ('a'==cond){                // represent and
          for (i=0;i<count;i++)
          switch (conds[i].type){
@@ -175,16 +176,19 @@ bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
 void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int count,int all,bufferInfo* bufferInfo){
     blockInfo *head,*ptr;
     fileInfo *file;
-    int need[10],i,j,bi,li,lnum,en;
+    int need[10],i,j,bi,li,lnum,en,record_Num;
     char *line,*detail[10],*elem,*line_c[100];
     char *lsplit=";",*esplit=",",*space=" ";
+    char block[4096];
     
     for (i=0;i<count;i++)
         need[i]=print[i].num;
     
-    head=readBlock(DB_Name,Table_Name,"",0,0,bufferInfo); 
-    for (bi=0;bi<1;bi++){
-        line=strtok(head->cBlock,lsplit);
+    record_Num=getRecordSum(DB_Name,Table_Name);
+    for (bi=0;bi<(int)(record_Num/32-0.01);bi++){
+        head=readBlock(DB_Name,Table_Name,"",bi,0,bufferInfo);
+        strcpy(block,head->cBlock);
+        line=strtok(block,lsplit);
         li=0;
         while (line!=NULL){
               line_c[li]=line;
@@ -219,15 +223,18 @@ void Select_No_Where(string DB_Name,string Table_Name,attr_info print[32],int co
 void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],int count,char cond,
                               attr_info print[32],int Count,int all,bufferInfo *bufferInfo){
     blockInfo *head,*ptr;
-    int need[10],i,j,bi,li,lnum,en;
+    int need[10],i,j,bi,li,lnum,en,record_Num;
     char *line,*detail[10],*elem,*line_c[100];
+    char block[4096];
     char *lsplit=";",*esplit=",",*space=" "; 
     
     for (i=0;i<Count;i++)
         need[i]=print[i].num;
-    head=readBlock(DB_Name,Table_Name,"",0,0,bufferInfo);
-    for (bi=0;bi<1;bi++){
-        line=strtok(head->cBlock,lsplit);
+    record_Num=getRecordSum(DB_Name,Table_Name);
+    for (bi=0;bi<(int)(record_Num/32-0.01);bi++){
+        head=readBlock(DB_Name,Table_Name,"",bi,0,bufferInfo);
+        strcpy(block,head->cBlock);
+        line=strtok(block,lsplit);
         li=0;
         while (line!=NULL){
               line_c[li]=line;
@@ -255,6 +262,7 @@ void Select_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
                 else
                 for (i=0;i<Count;i++)
                     printf("%s\t",detail[need[i]]);
+                printf("\n");
             }
         }
     } 

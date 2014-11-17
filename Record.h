@@ -10,9 +10,8 @@
 #include <set>
 #include <string>
 #include "Buffer.h"
-#include "Catalog.h"
 using namespace std;
-
+#include "Catalog.h"
 
 struct attr_info{
 	int num;
@@ -26,7 +25,7 @@ struct conditionInfo{
     int type,symbol;
     string left;
     int right0;
-    char *right1;
+    char right1[40];
     float right2;
 };
 

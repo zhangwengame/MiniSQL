@@ -10,8 +10,7 @@ string Interpreter(){
 	pFunc = PyObject_GetAttrString(pModule, "interpreter");
 	pValue = PyEval_CallObject(pFunc, NULL);
 	PyArg_Parse(pValue, "s", &pBuffer);
-	Py_Finalize();
-	cout << pBuffer << endl;
+	Py_Finalize();		
 	string ret = string(pBuffer);
 	return ret;
 }
