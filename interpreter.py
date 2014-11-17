@@ -6,7 +6,7 @@ def interpreter():
         if "from" not in s:
             print "No table are seleceted!"
         elif "where" in s:
-            m = re.match(r"select(.*)from(.*)where(.*);", s)
+            m = re.match(r".*select(.*)from(.*)where(.*);", s)
             if m:
                 s1=m.group(1).replace(" ","")
                 s2=m.group(2).replace(" ","")
@@ -17,7 +17,7 @@ def interpreter():
                 s="21"+s1+","+s2+","+s3
                 return s
         else:
-            m = re.match(r"select(.*)from(.*);", s)
+            m = re.match(r".*select(.*)from(.*);", s)
             s1=m.group(1).replace(" ","")
             s2=m.group(2).replace(" ","")
             s1=s1.replace(",",".");
@@ -26,13 +26,13 @@ def interpreter():
 
     def create_clause(s):
         if "database" in s:
-            m = re.match(r"create.*database(.*);", s)
+            m = re.match(r".*create.*database(.*);", s)
             s1=m.group(1).replace(" ","")
             s="00"+s1
         elif "table" in s:
             s1=s[:s.find('(')]
             s2=s[s.find('(')+1:]
-            m=re.match(r"create.*table(.*)", s1)
+            m=re.match(r".*create.*table(.*)", s1)
             s1=m.group(1).replace(" ","")
             s2=s2.replace(" ","")
             s="01"+s1+','
@@ -62,7 +62,7 @@ def interpreter():
                     t=t[:t.find('(')]+t[t.find(')')+1:]
                 s=s+t+'.'
         elif "index" in s:
-            m = re.match(r"create.*index(.*)on(.*)\((.*)\);", s)
+            m = re.match(r".*create.*index(.*)on(.*)\((.*)\);", s)
             if m:
                 s1=m.group(1).replace(" ","")
                 s2=m.group(2).replace(" ","")
@@ -75,7 +75,7 @@ def interpreter():
         if "from" not in s:
             print "No table are seleceted!"
         elif "where" in s:
-            m = re.match(r"delete from(.*)where(.*);", s)
+            m = re.match(r".*delete from(.*)where(.*);", s)
             if m:
                 s1=m.group(1).replace(" ","")
                 s2=m.group(2).replace(" ","")
@@ -84,7 +84,7 @@ def interpreter():
                 s="41"+s1+","+s2
                 return s
         else:
-            m = re.match(r"delete from(.*);", s)
+            m = re.match(r".*delete from(.*);", s)
             s1=m.group(1).replace(" ","")
             s1=s1.replace(",",".");
             s="40"+s1
@@ -93,7 +93,7 @@ def interpreter():
         if "into" not in s:
             print "No specific table is selected!"
         else:
-            m = re.match(r"insert into(.*)values(.*);", s)
+            m = re.match(r".*insert into(.*)values(.*);", s)
             if m:
                 s1=m.group(1).replace(" ","")
                 s2=m.group(2).replace(" ","")
@@ -103,15 +103,15 @@ def interpreter():
         return s
     def drop_clause(s):
         if "databse" in s:
-            m = re.match(r"drop database(.*);", s)
+            m = re.match(r".*drop database(.*);", s)
             s1=m.group(1).replace(" ","")
             s="10"+s1
         elif "table" in s:
-            m = re.match(r"drop table(.*);", s)
+            m = re.match(r".*drop table(.*);", s)
             s1=m.group(1).replace(" ","")
             s="11"+s1
         elif "index" in s:
-            m = re.match(r"drop index(.*);", s)
+            m = re.match(r".*drop index(.*);", s)
             s1=m.group(1).replace(" ","")
             s="12"+s1
         else: 
@@ -138,5 +138,4 @@ def interpreter():
     #sql=sql.replace("$","")
     return sql
     #print sql
-
 #interpreter()
