@@ -23,9 +23,9 @@ void main()
 			for (int i = 0; i < 4096; i++)
 				cout << b->cBlock[i];
 		cout << endl;*/
-		cout<<"MiniSQL-->> ";
+		cout<<"MiniSQL--";
 		SQL=Interpreter();
-		cout << "main" << SQL << endl;
+		//cout << "main" << SQL << endl;
 		API_Module(SQL,run);
 	}
 	//createDatabase("D_1");
