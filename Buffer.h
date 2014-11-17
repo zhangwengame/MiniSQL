@@ -26,7 +26,7 @@ struct blockInfo  {
 	blockInfo *next;  	
 	fileInfo *file;     	
 	char *cBlock;	   
-	time_t iTime;		
+	int iTime;		
 	int lock;
 	blockInfo()
 	{
