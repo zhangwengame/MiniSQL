@@ -122,6 +122,8 @@ def interpreter():
         s1=m.group(1).replace(" ","")
         s="03"+s1
         return s;
+    def quit_clause(s):
+        return "99"
     sql=""
     sql=raw_input(">>")
     while True:
@@ -142,6 +144,8 @@ def interpreter():
         sql=insert_clause(sql)
     elif "use" in sql:
         sql=use_clause(sql)
+    elif "quit" in sql:
+        sql=quit_clause(sql)
     #sql=sql.replace("$","")
     return sql
     #print sql
