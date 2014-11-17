@@ -14,11 +14,11 @@ struct attrInfo{
 };
 void createDatabase(string DB_Name);
 void createTable(string DB_Name, string Table_Name);
+void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name);
 void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, int Attr_Type, int Data_Type);
+int attrOrder(string DB_Name, string Table_Name, string Attr_Name);
 bool existDatabase(string DB_Name);
 bool existTable(string DB_Name, string Table_Name);
-int attrOrder(string DB_Name, string Table_Name, string Attr_Name);
-void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name);
 void dropIndex(string DB_Name, string Table_Name, string Index_Name);
 void dropTable(string DB_Name, string Table_Name);
 void dropDatabase(string DB_Name);

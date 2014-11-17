@@ -52,15 +52,14 @@ struct fileInfo  {
 		blockSet.clear();
 	};
 };	
-
+fileInfo* getfile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo);
+blockInfo* findBlock(bufferInfo* bufferInfo);
+blockInfo* getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo);
 blockInfo* existBlock(fileInfo* file, int blockNum);
 fileInfo* existFile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo);
-blockInfo*	findBlock(bufferInfo* bufferInfo);
-void writeBlock(string DB_Name, blockInfo * block);
 blockInfo* readBlock(string DB_Name, string fileName, string attrName, int blockNum, int fileType, bufferInfo* bufferInfo);
+void writeBlock(string DB_Name, blockInfo * block);
 void closeFile(fileInfo* F, string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo);
-fileInfo* getfile(string DB_Name, string fileName, string attrName,int fileType, bufferInfo* bufferInfo);
-blockInfo * getblock(fileInfo* F, int blockNum, bufferInfo* bufferInfo);
 void closeDatabase(string DB_Name, bufferInfo* bufferInfo);
 void quitProg(string DB_Name, bufferInfo* bufferInfo);
 #endif

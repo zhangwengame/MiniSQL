@@ -1,58 +1,5 @@
 #include "Catalog.h"
-bool existDatabase(string DB_Name){
-	int DBcount;
-	string path = "Catalog//DB_Name.dat";
-	FILE *fIn = fopen(path.c_str(), "r");
-	char name[25];
-	fscanf(fIn, "%d", &DBcount);
-	for (int i = 1; i <= DBcount; i++)
-	{
-		fseek(fIn, 20 * i, 0);
-		fscanf(fIn, "%s", name);
-		if (string(name) == DB_Name)
-		{			
-			fclose(fIn);
-			return true;
-		}
-	}
-	return false;
-}
-bool existTable(string DB_Name, string Table_Name){
-	string path = "Catalog//"+DB_Name+"//"+Table_Name+".dat";
-	FILE *fUpdate = fopen(path.c_str(), "r+");
-	if (fUpdate == NULL)
-		return false;
-	else
-	{
-		fclose(fUpdate);
-		return true;
-	}		
-}
-int attrOrder(string DB_Name, string Table_Name, string Attr_Name){
-	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
-	FILE *fIn = fopen(path.c_str(), "r");
-	int Attrcount;
-	char name[25];
-	fscanf(fIn, "%d", &Attrcount);
-	for (int i = 0; i < Attrcount; i++)
-	{
-		fseek(fIn, 20 + 40 * i, 0);
-		for (int j = 0; j < 20; j++)
-		{
-			name[j] = fgetc(fIn);
-			if (name[j] == 0)
-				break;
-		}
-		name[20] = 0;
-		if (string(name) == Attr_Name)
-		{
-			fclose(fIn);
-			return i + 1;
-		}			
-	}
-	fclose(fIn);
-	return 0;
-}
+
 void createDatabase(string DB_Name){
 	if (existDatabase(DB_Name))
 	{
@@ -61,7 +8,7 @@ void createDatabase(string DB_Name){
 	}
 	int DBcount;
 	char name[25];
-	string path = "Catalog//DB_Name.dat";	
+	string path = "Catalog//DB_Name.dat";
 	FILE *fUpdate = fopen(path.c_str(), "r+");
 	fscanf(fUpdate, "%d", &DBcount);
 	fseek(fUpdate, 0, 0);
@@ -71,7 +18,7 @@ void createDatabase(string DB_Name){
 	if (DB_Name.length()<20)
 		fprintf(fUpdate, "%c", 0);
 	fclose(fUpdate);
-	string dpath ="Catalog//"+ DB_Name + "//";
+	string dpath = "Catalog//" + DB_Name + "//";
 	CreateDirectory(dpath.c_str(), NULL);
 	dpath = dpath + "TA_Name.dat";
 	fUpdate = fopen(dpath.c_str(), "w");
@@ -83,18 +30,19 @@ void createDatabase(string DB_Name){
 	CreateDirectory(dpath.c_str(), NULL);
 	return;
 }
+
 void createTable(string DB_Name, string Table_Name)
-{ 
+{
 	if (existTable(DB_Name, Table_Name))
 	{
 		printf("ERROR: There is already such a table!\n");
 		return;
 	}
-	string dpath = "Data//"+DB_Name + "//" + Table_Name + "//";
-	string path = "Catalog//" + DB_Name+"//";	
+	string dpath = "Data//" + DB_Name + "//" + Table_Name + "//";
+	string path = "Catalog//" + DB_Name + "//";
 	CreateDirectory(path.c_str(), NULL);
-	path = path + Table_Name + ".dat";	
-	FILE *fOut = fopen(path.c_str(), "w"),*fUpdate;
+	path = path + Table_Name + ".dat";
+	FILE *fOut = fopen(path.c_str(), "w"), *fUpdate;
 	fprintf(fOut, "0");
 	fprintf(fOut, "%c", 0);
 	fseek(fOut, 10, 0);
@@ -119,6 +67,7 @@ void createTable(string DB_Name, string Table_Name)
 	fclose(fOut);
 	return;
 }
+
 void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name){
 	if (Index_Name.length() > 14)
 	{
@@ -133,7 +82,7 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 	}
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
 	FILE *fUpdate = fopen(path.c_str(), "r+");
-	fseek(fUpdate, 20 + (attrNo - 1) * 40+25,0);
+	fseek(fUpdate, 20 + (attrNo - 1) * 40 + 25, 0);
 	char t = fgetc(fUpdate);
 	if (t == '1')
 	{
@@ -147,13 +96,12 @@ void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Ind
 	if (Index_Name.length()<14)
 		fprintf(fUpdate, "%c", 0);
 	fclose(fUpdate);
-	/*--------------*/
-	string dpath = "Data//"+DB_Name + "//" + Table_Name + "//" + Table_Name + "_"+ Attr_Name+".1.dat";
+	string dpath = "Data//" + DB_Name + "//" + Table_Name + "//" + Table_Name + "_" + Attr_Name + ".1.dat";
 	FILE *fOut = fopen(dpath.c_str(), "w");
 	fprintf(fOut, "001#001");
 	fclose(fOut);
 }
-//Do not verify uniqueness of attrs
+
 void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, int Attr_Type, int Data_Type)
 {
 	if (Attr_Name.length() > 14)
@@ -161,7 +109,7 @@ void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, 
 		printf("ERROR: Attribute %s's name is too long !\n", Attr_Name);
 		return;
 	}
-	if (Attr_Len>255 && Data_Type==1)
+	if (Attr_Len>255 && Data_Type == 1)
 	{
 		printf("ERROR: Attribute %s's length is too long !\n", Attr_Name);
 		return;
@@ -171,7 +119,7 @@ void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, 
 		printf("ERROR: Attribute name confilcts!\n");
 		return;
 	}
-	int Attrcount;	
+	int Attrcount;
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
 	FILE *fUpdate = fopen(path.c_str(), "r+");
 	fscanf(fUpdate, "%d", &Attrcount);
@@ -184,12 +132,70 @@ void addAttr(string DB_Name, string Table_Name, string Attr_Name, int Attr_Len, 
 	fseek(fUpdate, 20 + Attrcount * 40 + 24, 0);
 	fprintf(fUpdate, "%d", Data_Type);
 	fseek(fUpdate, 20 + Attrcount * 40 + 25, 0);
-	fprintf(fUpdate, "%d",0);
-	fseek(fUpdate,0, 0);
+	fprintf(fUpdate, "%d", 0);
+	fseek(fUpdate, 0, 0);
 	fprintf(fUpdate, "%d", Attrcount + 1);
 	fclose(fUpdate);
 	return;
 }
+
+int attrOrder(string DB_Name, string Table_Name, string Attr_Name){
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fIn = fopen(path.c_str(), "r");
+	int Attrcount;
+	char name[25];
+	fscanf(fIn, "%d", &Attrcount);
+	for (int i = 0; i < Attrcount; i++)
+	{
+		fseek(fIn, 20 + 40 * i, 0);
+		for (int j = 0; j < 20; j++)
+		{
+			name[j] = fgetc(fIn);
+			if (name[j] == 0)
+				break;
+		}
+		name[20] = 0;
+		if (string(name) == Attr_Name)
+		{
+			fclose(fIn);
+			return i + 1;
+		}
+	}
+	fclose(fIn);
+	return 0;
+}
+
+bool existDatabase(string DB_Name){
+	int DBcount;
+	string path = "Catalog//DB_Name.dat";
+	FILE *fIn = fopen(path.c_str(), "r");
+	char name[25];
+	fscanf(fIn, "%d", &DBcount);
+	for (int i = 1; i <= DBcount; i++)
+	{
+		fseek(fIn, 20 * i, 0);
+		fscanf(fIn, "%s", name);
+		if (string(name) == DB_Name)
+		{			
+			fclose(fIn);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool existTable(string DB_Name, string Table_Name){
+	string path = "Catalog//"+DB_Name+"//"+Table_Name+".dat";
+	FILE *fUpdate = fopen(path.c_str(), "r+");
+	if (fUpdate == NULL)
+		return false;
+	else
+	{
+		fclose(fUpdate);
+		return true;
+	}		
+}
+
 void dropIndex(string DB_Name, string Table_Name,  string Index_Name)
 {
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat",Attr_Name;
@@ -238,6 +244,7 @@ void dropIndex(string DB_Name, string Table_Name,  string Index_Name)
 	string dpath = "Data//"+DB_Name + "//" + Table_Name + "//" + Table_Name + "_" + Attr_Name + ".1.dat";
 	DeleteFile(dpath.c_str());
 }
+
 void dropTable(string DB_Name, string Table_Name){
 	if (!existTable(DB_Name, Table_Name))
 	{
@@ -298,6 +305,7 @@ void dropTable(string DB_Name, string Table_Name){
 	fclose(fUpdate);
 	DeleteFile(path.c_str());
 }
+
 void dropDatabase(string DB_Name){
 	string tableNamePath,databaseCatalog,databaseData,databaseNamePath;
 	tableNamePath = "Catalog//" + DB_Name + "//TA_Name.dat";
@@ -348,6 +356,45 @@ void dropDatabase(string DB_Name){
 	}
 	fclose(fUpdate);
 }
+
+int getRecordSum(string DB_Name, string Table_Name)
+{
+	if (!existTable(DB_Name, Table_Name))
+	{
+		printf("ERROR: There is no such Table %s:%s\n", DB_Name.c_str(), Table_Name.c_str());
+		return -1;
+	}
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fIn = fopen(path.c_str(), "r");
+	fseek(fIn, 10, 0);
+	int ret = 0;
+	char c;
+	for (int j = 0; j < 10; j++)
+	{
+		c = fgetc(fIn);
+		if ('0' <= c && c <= '9')
+			ret = (c - '0') + ret * 10;
+		else
+			break;
+	}
+	fclose(fIn);
+	return ret;
+}
+
+void setRecordSum(string DB_Name, string Table_Name, int val){
+	if (!existTable(DB_Name, Table_Name))
+	{
+		printf("ERROR: There is no such Table %s:%s\n", DB_Name.c_str(), Table_Name.c_str());
+		return;
+	}
+	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
+	FILE *fUpdate = fopen(path.c_str(), "r+");
+	fseek(fUpdate, 10, 0);
+	fprintf(fUpdate, "%d", val);
+	fclose(fUpdate);
+	return;
+}
+
 attrInfo *getAttrInfo(string DB_Name, string Table_Name, string Attr_Name){
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
 	FILE *fIn = fopen(path.c_str(), "r");
@@ -396,6 +443,7 @@ attrInfo *getAttrInfo(string DB_Name, string Table_Name, string Attr_Name){
 	printf("ERROR: There is no such attr : %s\n", Attr_Name.c_str());
 	return NULL;
 }
+
 attrInfo *getAttrInfo(string DB_Name, string Table_Name, int Attr_No){
 	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
 	FILE *fIn = fopen(path.c_str(), "r");
@@ -440,40 +488,4 @@ attrInfo *getAttrInfo(string DB_Name, string Table_Name, int Attr_No){
 		ret->indexName = "";
 	fclose(fIn);
 	return ret;
-}
-int getRecordSum(string DB_Name, string Table_Name)
-{
-	if (!existTable(DB_Name, Table_Name))
-	{
-		printf("ERROR: There is no such Table %s:%s\n", DB_Name.c_str(), Table_Name.c_str());
-		return -1;
-	}
-	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
-	FILE *fIn = fopen(path.c_str(), "r");
-	fseek(fIn, 10, 0);
-	int ret = 0;
-	char c;
-	for (int j = 0; j < 10; j++)
-	{
-		c = fgetc(fIn);
-		if ('0' <= c && c <= '9')
-			ret = (c - '0') + ret * 10;
-		else
-			break;
-	}
-	fclose(fIn);
-	return ret;
-}
-void setRecordSum(string DB_Name, string Table_Name, int val){
-	if (!existTable(DB_Name, Table_Name))
-	{
-		printf("ERROR: There is no such Table %s:%s\n", DB_Name.c_str(), Table_Name.c_str());
-		return;
-	}
-	string path = "Catalog//" + DB_Name + "//" + Table_Name + ".dat";
-	FILE *fUpdate = fopen(path.c_str(), "r+");
-	fseek(fUpdate, 10, 0);
-	fprintf(fUpdate, "%d", val);
-	fclose(fUpdate);
-	return;
 }
