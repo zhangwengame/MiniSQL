@@ -13,7 +13,6 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 	int attr_num[10],ind,index,num,primary,check;
 	index_info nodes[32];
 	conditionInfo conds[10];
-	//attr_info print[32];
 	char cond,AO;
 	bool ok;
 	string conds_str[10];
@@ -77,9 +76,6 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
                 Attr=Attr.substr(index+1);
                 index=Attr.find('.');
             }
-			//判断是否创建主键索引
-			/*if(!Attr_Name.IsEmpty()) 
-				Create_Index(Table_Name,Table_Name,Attr_Name,DB_Name,length,offset,type);*/
 		}		
 	}
 
@@ -115,6 +111,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
              closeDatabase(DB_Name,bufferInfo);
          bufferInfo->currentDatabase=SQL;
     }
+    
 	//--------------------------------------------------------------------------
 	//删除数据库
 	else if(Type=="10")
@@ -141,8 +138,6 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			Table_Name=SQL;
 			closeFile(NULL,DB_Name,Table_Name,"",0,bufferInfo);
 			dropTable(DB_Name,Table_Name);
-			//for(index=0;index<count;index++)
-				//Close_File(DB_Name,index_name[index],1,false);
 		}
 	}
 
@@ -245,7 +240,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			else
 			{
 				if(Attr=="*"){
-                              //cout<<"begin"<<endl;
+                    //cout<<"begin"<<endl;
                     Select_With_Where(DB_Name,Table_Name,conds,num,AO,print,0,1,bufferInfo,1,check);
                 }
 				else {
@@ -264,6 +259,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			}		
 		}
     }
+    
     //--------------------------------------------------------------------------
     // 插入元组 
     else if (Type=="30")
@@ -333,7 +329,6 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			    Delete_With_Where(DB_Name,Table_Name,conds,num,nodes,0,AO,bufferInfo);		
 		}
     else cout<<"error: invalid type of insruction!"<<endl;
-    //cout<<DB_Name<<endl;
 }
 
 conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
@@ -444,6 +439,7 @@ conditionInfo Str_To_Conds(string DB_Name,string Table_Name,string str){
     }
     return conds;
 }
+
 /*
 int main(){
     bufferInfo *run;
@@ -457,7 +453,7 @@ int main(){
     //for (i=1;i<=10;i++)
         //API_Module("30Balance,2,'naab',1",run);
     //createIndex("D_1","Balance","ele1","ele1");
-    API_Module("03D_1",run);
+    //API_Module("03D_1",run);
     //API_Module("01t1,!ele1i.@ele2c.ele3i.ele4f.",run);
     //API_Module("30t1,1,'Jim',20,2000.00",run);
     //API_Module("30t1,2,'Kate',24,1800.00",run);
@@ -467,10 +463,11 @@ int main(){
 	//API_Module("21*,Balance,ele1>1",run);
 	//API_Module("21*,t1,ele1>1",run);
 	//API_Module("40t1",run);
-	API_Module("41t1,ele1<3",run);
+	//API_Module("41t1,ele1<3",run);
 	//API_Module("20*,Balance",run);
 	//API_Module("02Balance,ele1,ind1");
 	//API_Module("10D_1");
 	while (1);
 }
 */
+

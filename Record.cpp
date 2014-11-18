@@ -2,8 +2,7 @@
 #include <iostream>
 #include <cmath>
 extern index_info  index_0;
-//void Close_Database(string DB_Name,bool closetype);
-//void Close_File(string DB_Name,string filename,int filetype,bool closetype);
+
 void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,bufferInfo *bufferInfo){
     char content[128];
     int start,i,bi,index,check=1,fint,index2;
@@ -89,19 +88,8 @@ void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,b
 	cout << "Insert succeed!" << endl;
     writeBlock(DB_Name,head);
 }
-     
-void Print_Head(attr_info print[32],int count){
-    int i;
-    //for (i=0;i<count;i++)
-        //printf("%s\t",print[i].name);
-}
 
-void Print_To_Screen(string record,attr_info print[32],int count);
-void Select_With_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,attr_info print[32],int Count,char cond,int index);
-void Select_With_Equal_Cond(string DB_Name,string Table_Name,conditionInfo conds[32],int count,attr_info print[32],int Count,char cond,index_info Index);
-void Select_With_Greater_Cond(string DB_Name,string Table_Name,conditionInfo conds[32],int count,attr_info print[32],int Count,char cond,index_info Index,int type);
-void Select_With_Smaller_Cond(string DB_Name,string Table_Name,conditionInfo conds[32],int count,attr_info print[32],int Count,char cond,index_info Index,int type);
-
+// 复合条件判断 
 bool Confirm_To_Where(string DB_Name,string Table_Name,char *detail[10],conditionInfo conds[10],int count,char cond){
      int i;
      
@@ -155,6 +143,7 @@ bool Confirm_To_Where(string DB_Name,string Table_Name,char *detail[10],conditio
      }  
 }
 
+// 整数的大小比较 
 bool Confirmi(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition){
      int attr,ind,i;
      
@@ -183,6 +172,7 @@ bool Confirmi(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
      return true;
 }
 
+// 字符串的大小比较 
 bool Confirmc(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition){
      int attr,ind,i;
      
@@ -211,6 +201,7 @@ bool Confirmc(string DB_Name,string Table_Name,char *detail[10],conditionInfo co
      return true;
 }
 
+// 实数的大小比较 
 bool Confirmf(string DB_Name,string Table_Name,char *detail[10],conditionInfo condition){
      int attr,ind,i;
      
@@ -407,15 +398,6 @@ void Delete_With_Where(string DB_Name,string Table_Name,conditionInfo conds[10],
     } 
 	cout << "Delete succeed!" << endl;
 } 
-void Delete_Without_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond);
-void Delete_With_Useful_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,int index);
-void Delete_With_Equal_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,index_info Index);
-void Delete_With_Greater_Cond(string DB_Name,string Table_Name,conditionInfo conds[10],int count,index_info nodes[32],int num,char cond,index_info Index,int type);
-void Select_With_Smaller_Cond(string DB_Name,string Table_Name,conditionInfo conds[32],int count,index_info nodes[32],int num,char cond,index_info Index,int type);
-bool Find_Useful_Cond(conditionInfo conds[10],int count,int & index);
-void Insert_Index_All(string DB_Name,string Table_Name,string Index_Name,int length,int offset,int type);
-bool Verify_Insertable(string DB_Name,string Table_Name,index_info nodes[32],int count,string Attr);
-void Quit(string DB_Name);
 
 /*int main(){
     attr_info print[32];
