@@ -1,9 +1,22 @@
+///////////////////////////////////////////////////////////////
+///---------------------------------------------------------///
+///       Module: Catalog                                   ///
+///       Produced by: Wen Zhang                            ///
+///       Description: Get and set parameters configuration ///
+///                    parameters , create and remove files ///
+///                    according to orders from other parts.///
+///       date: 2014/11/18                                  ///
+///-------------------------------------------------------- ///
+///////////////////////////////////////////////////////////////
 #ifndef _CATALOG_H 
 #define _CATALOG_H
+
 #include <fstream>
 #include <windows.h>
 #include <string.h>
+
 using namespace std;
+
 struct attrInfo{
 	string attrName;
 	string indexName;
@@ -11,6 +24,7 @@ struct attrInfo{
 	int type;
 	int index;	
 };
+
 void createDatabase(string DB_Name);
 void createTable(string DB_Name, string Table_Name);
 void createIndex(string DB_Name, string Table_Name, string Attr_Name, string Index_Name);

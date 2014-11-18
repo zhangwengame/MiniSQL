@@ -1,3 +1,13 @@
+///////////////////////////////////////////////////////////////
+///---------------------------------------------------------///
+///       Module: Buffer                                    ///
+///       Produced by: Wen Zhang                            ///
+///       Description: Arrange buffer area for whole DBMS.  ///
+///                    The whole DBMS use buffer to do file ///
+///                    operations.                          ///
+///       date: 2014/11/18                                  ///
+///-------------------------------------------------------- ///
+///////////////////////////////////////////////////////////////
 #ifndef _BUFFER_H 
 #define _BUFFER_H
 
@@ -10,8 +20,10 @@
 #include <Windows.h>
 
 using namespace std;
+
 struct fileInfo;
 struct blockInfo;
+
 struct index_info
 {
 	string index_name;
@@ -20,6 +32,7 @@ struct index_info
 	long offset; 
 	void* value;
 };
+
 struct bufferInfo{
 public:
 	fileInfo *fileHandle;
@@ -30,6 +43,7 @@ public:
 	int blockCount;
 	bufferInfo() :fileHandle(NULL), blockHandle(NULL),fileCount(0),blockCount(0){};
 };
+
 struct blockInfo  {
 	int blockNum;	
 	bool dirtyBit;     
@@ -47,6 +61,7 @@ struct blockInfo  {
 		delete[] cBlock;
 	}
 };
+
 struct fileInfo  {
 	int type;				
 	string fileName;		
@@ -62,6 +77,7 @@ struct fileInfo  {
 		blockSet.clear();
 	};
 };	
+
 fileInfo* getFile(string DB_Name, string fileName, string attrName, int fileType, bufferInfo* bufferInfo);
 blockInfo* findBlock(bufferInfo* bufferInfo);
 blockInfo* getBlock(fileInfo* F, int blockNum, bufferInfo* bufferInfo);
