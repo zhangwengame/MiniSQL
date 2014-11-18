@@ -1,10 +1,6 @@
 #ifndef _INDEX_H 
 #define _INDEX_H
-//#include <afx.h>
 #include "Buffer.h"
-//#include "Buffer.cpp"
-//#include "Catalog.h"
-//#include "Catalog.cpp"
 #include <vector>
 using namespace std;
 struct Node
@@ -17,14 +13,7 @@ struct Node
 	int suc;
 	int parent;
 };
-struct index_info
-{
-	string index_name;
-	int type;
-	int root;
-	long offset; //在表中的行数
-	void* value;
-};
+
 string int_char(int n);
 int char_int(const char* s);
 void encodeNode(string database,string table_name,index_info& inform,const Node& p,bufferInfo *run);

@@ -11,7 +11,9 @@
 
 //#include "MiniSQL.h"
 #include "Record.h"
+#include "Index.h"
 #include <iostream>
+
 using namespace std;
 
 void API_Module(string SQL, bufferInfo* bufferInfo);

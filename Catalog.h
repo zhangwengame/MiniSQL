@@ -1,6 +1,5 @@
 #ifndef _CATALOG_H 
 #define _CATALOG_H
-//#include <afx.h>
 #include <fstream>
 #include <windows.h>
 #include <string.h>

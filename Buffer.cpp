@@ -153,6 +153,7 @@ void writeBlock(string DB_Name, blockInfo *block){
 	else
 		path = path + "_"+block->file->attrName+".1.dat";
 	FILE *fout = fopen(path.c_str(), "r+");
+	if (fout == NULL) return;
 	fseek(fout,BLOCK_LEN*(block->blockNum), 0);
 	for (int i = 0; i < BLOCK_LEN;i++)
 	fprintf(fout, "%c",block->cBlock[i] );

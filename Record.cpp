@@ -1,18 +1,19 @@
 #include "Record.h"
 #include <iostream>
 #include <cmath>
- 
+extern index_info  index_0;
 //void Close_Database(string DB_Name,bool closetype);
 //void Close_File(string DB_Name,string filename,int filetype,bool closetype);
 void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,bufferInfo *bufferInfo){
     char content[128];
-    int start,i,bi,index,check=1,fint;
+    int start,i,bi,index,check=1,fint,index2;
     blockInfo *head;
     string one,first;
     attrInfo *ai;
     conditionInfo cond[10];
     attr_info print[32];
-    index_info  index_0;
+    float ffloat;
+    //index_info  index_0;
     
     bi=record_Num/32;
     head=readBlock(DB_Name,Table_Name,"",bi,0,bufferInfo);
@@ -23,8 +24,14 @@ void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,b
     int leng=Attr.length();
     
     index=Attr.find(',');
-    first=Attr.substr(0,index);
+    first=Attr.substr(index+1);
+	index2 = first.find(',');
+	first = first.substr(1,index2-2);
+	first[0] = first[0] + 32;
+
+	//cout << first << endl;
     fint=atoi(first.c_str());
+    ffloat=atoi(first.c_str());
     i=1;
     while ((index>0)){
         one=Attr.substr(0,index);
@@ -47,6 +54,7 @@ void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,b
             if ((one[0]>'9')||(one[0]<'0'))
                strcpy(cond[0].right1,one.c_str());
             cond[0].type=1;
+			//cout << "cond:"<<cond[0].right1 << endl;
             if (record_Num>0) Select_With_Where(DB_Name,Table_Name,cond,1,'a',print,0,1,bufferInfo,0,check);
             if (check==0){
                 cout<<"error: It voilates the constrains of unique attributes!"<<endl;
@@ -66,11 +74,18 @@ void Insert_Item(string DB_Name,string Table_Name,string Attr,int & record_Num,b
     //cout<<"block:"<<head->cBlock<<endl;
     record_Num++;
     
-    /*index_0.index_name="ele1";
-    index_0.type=0;
-    index_0.value=&fint;
-    index_0.offset=record_Num;
-    insert_one(DB_Name,Table_Name,index_0,0,index_0.offset,bufferInfo); */
+    if (Table_Name=="t1"){
+       switch (bufferInfo->index_0.type){
+	   case 0: bufferInfo->index_0.value = &fint;
+              break;
+	   case 1: bufferInfo->index_0.value = &ffloat;
+              break;
+	   case 2: bufferInfo->index_0.value =(char *)first.c_str();
+              break;
+       }
+	   bufferInfo->index_0.offset = record_Num;
+	   insert_one(DB_Name, Table_Name, bufferInfo->index_0, 0, bufferInfo->index_0.offset, bufferInfo);
+    }
 	cout << "Insert succeed!" << endl;
     writeBlock(DB_Name,head);
 }

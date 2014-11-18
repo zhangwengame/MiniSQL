@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdlib>
 using namespace std;
-const int capacity=10;
+const int capacity=5;
 //int root=0;
 //int k_type=2;
 //bufferInfo *run=new bufferInfo;
@@ -72,15 +72,16 @@ void encodeNode(string database,string table_name,index_info& inform,const Node&
 		//cout<<tmp<<endl;
 		//cout<<s<<endl;
 		//cout<<"Record amount:"<<p.value.size()<<endl;
-		for(i=0;i<p.value.size();i++){
+		/*for(i=0;i<p.value.size();i++){
 			cout<<p.record[i]<<p.value[i]<<endl;
-		}
+		}*/
 		for(i=0;i<p.record.size();i++){
 			//memset(tmp,0,sizeof(tmp));
 			switch (inform.type){
 				case 0:sprintf(tmp,"%05d%06d",p.record[i],(int)p.value[i]);break;
 				case 1:sprintf(tmp,"%05d%10.4f",p.record[i],(float)p.value[i]);break;
-				case 2:sprintf(tmp,"%05d%5s",p.record[i],int_char(p.value[i]).c_str());cout<<"length"<<int_char(p.value[i]).length()<<endl;break;
+				case 2:sprintf(tmp,"%05d%5s",p.record[i],int_char(p.value[i]).c_str());//cout<<"length"<<int_char(p.value[i]).length()<<endl;
+					break;
 				default: cout<<"Error type of key";break;
 			}
 			//sprintf(tmp,"%05d%c",p.record[i],p.value[i]);

@@ -4,18 +4,27 @@
 #define BLOCK_LEN			4096	
 #define MAX_FILE_ACTIVE 	5		
 #define MAX_BLOCK			40		
-
 #include <fstream>
 #include <set>
 #include <string.h>
 #include <Windows.h>
+
 using namespace std;
 struct fileInfo;
 struct blockInfo;
+struct index_info
+{
+	string index_name;
+	int type;
+	int root;
+	long offset; 
+	void* value;
+};
 struct bufferInfo{
 public:
 	fileInfo *fileHandle;
 	blockInfo *blockHandle;
+	index_info index_0;
 	string currentDatabase;
 	int fileCount;
 	int blockCount;

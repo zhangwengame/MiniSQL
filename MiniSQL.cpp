@@ -1,7 +1,4 @@
 #include "MiniSQL.h"
-#include "Interpreter.h"
-#include "API_Module.h"
-#include "Buffer.h"
 
 void main()
 {

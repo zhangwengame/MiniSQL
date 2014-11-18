@@ -1,6 +1,6 @@
 #include "API_Module.h"
 
-string DB_Name,Table_Name="Balance";
+string DB_Name,Table_Name="t1";
 attr_info print[32];
 int record_Num=0; 
 
@@ -100,7 +100,11 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 			Table_Name=SQL.substr(0,index);
 			Attr_Name=SQL.substr(index+1);
 			//cout<<Table_Name<<" "<<Attr_Name<<" "<<Index_Name<<endl;
-			createIndex(DB_Name,Table_Name,Attr_Name,Index_Name);	
+			createIndex(DB_Name,Table_Name,Attr_Name,Index_Name);
+            //bufferInfo->index_0.type=(getAttrInfo(DB_Name,Table_Name,Attr_Name))->type;
+			bufferInfo->index_0.type = 2;
+			bufferInfo->index_0.index_name = Index_Name;
+			bufferInfo->index_0.root = 0;
 		}
 	}
     //--------------------------------------------------------------------------
@@ -153,7 +157,7 @@ void API_Module(string SQL, bufferInfo* bufferInfo)
 		else
 		{
 			Index_Name=SQL;
-			closeFile(NULL,DB_Name,Table_Name,Index_Name,0,bufferInfo);
+			closeFile(NULL,DB_Name,Table_Name,Index_Name,1,bufferInfo);
 			dropIndex(DB_Name,Table_Name,Index_Name);
 		}
 	}
